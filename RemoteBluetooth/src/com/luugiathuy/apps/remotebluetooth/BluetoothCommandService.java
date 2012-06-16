@@ -13,12 +13,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
 
 /*
  *
- * Connection and also try to write.
+ * Function: Connection then start to read data and also try to write.
+ * This service can send comment back to main activity.
  *
  * 
  */
@@ -308,6 +308,9 @@ public class BluetoothCommandService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        private String old="";
+        private int mydataflag =0;
+        MessageController myMsgCtrl =new MessageController();
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
@@ -335,24 +338,9 @@ public class BluetoothCommandService {
             while (true) {
                 try {
                 	// Read from the InputStream
-                    int bytes = mmInStream.read(buffer);
-                    // Send the obtained bytes to the UI Activity
-                    
-                   /* String readMessage = new String(buffer, 0, bytes);
-                    String [] split_data =process (readMessage);
-                    readMessage= new String (split_data[3]+" "+split_data[4]+" "+split_data[5]);
-                    // mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ, readMessage)
-                     //        .sendToTarget();
-                    
-                    int length= readMessage.length();
-                    buffer = readMessage.getBytes();
-                    mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ, length, -1,buffer )
-                           .sendToTarget();
-                   */ 
-                    
-                    mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ, bytes, -1,buffer )
-                           .sendToTarget();
-                    
+                	int bytes = mmInStream.read(buffer);
+                	DataCenter(buffer,bytes);
+                 
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -360,11 +348,80 @@ public class BluetoothCommandService {
                 }
             }
         }
+        
+        public void DataCenter(byte[] buf,int bytes){
+        	
+        	try{
+        		int i=0,j,k,countnew;
+        		String newstring = new String(buf, 0, bytes);
+        		
+        		//combine the old string so we won't lose data.
+        		try{
+        			newstring=old.concat(newstring);	
+        		}
+                catch(NullPointerException e){
+                	Log.e(TAG, "no pointer", e);
+            		e.getStackTrace();
+                }
+                
+               //Check the first "\n" key character.
+                if(mydataflag ==0 ){
+                	countnew=newstring.length();
+                	 for( i=0;i<countnew;i++)
+                     {
+                		 	if(newstring.charAt(i)=='\n'){
+                		 		mydataflag=1;
+                		 		newstring=newstring.substring(i+1);
+                		 		old="";
+                		 		break;
+                		 	}
+                     }
+                	 if (i== countnew)
+                	 {
+                		 old=newstring;
+                		 return ;
+                	 }
+                }
 
-        public String[] process(String buf){
-        	String[] split_buf=buf.split(",");
-        	return 	split_buf;
+                //we already got the first \n so now , we start to process other data.
+                countnew=newstring.length();
+    //			  print string length so we see whether the speed is OK.
+    //            System.out.println("The new string length"+countnew);
+                for(j=0,k=0;j<countnew;j++){
+           		 if(newstring.charAt(j)=='\n'){
+           			 try{
+           				 String tmp=newstring.substring(k,j-1);
+           				 SendBack(tmp);
+           			 }
+           			 catch(StringIndexOutOfBoundsException e){
+           				Log.e(TAG, "Substring"+"k="+k+"    j="+j+" ", e);
+           				 e.getStackTrace();
+           			 }
+           			 k=j+1;
+
+           		 }
+                }
+                // save the old remained string so ,we won't lose it when we use it.
+                old=newstring.substring(k);
+        	}
+        	catch (NullPointerException e){
+        		Log.e(TAG, "DataCenter", e);
+        		e.getStackTrace();
+        	}
+        	
         }
+
+        public void SendBack(String  msg){
+
+        	//data processing
+        	//String[] split_data=msg.split(",");
+        	//msg=split_data[1].concat("\n"+split_data[2]+"\n"+split_data[3]+"\n"+split_data[4]+"\n"+split_data[5]+"\n"+split_data[6]+"\n"+split_data[7]+"\n"+split_data[8]+"\n"+split_data[9]);
+        	msg=myMsgCtrl.Read(msg);
+        	//send back the tag(data).
+        	
+         	mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ,msg)
+    	 	.sendToTarget();
+       }
         
         /**
          * Write to the connected OutStream.

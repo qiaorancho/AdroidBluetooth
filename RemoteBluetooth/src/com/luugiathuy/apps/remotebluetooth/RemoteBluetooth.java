@@ -1,5 +1,7 @@
 package com.luugiathuy.apps.remotebluetooth;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,11 +17,21 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+
+
+/*
+ * The main GUI interface.
+ * Function	: Main GUI and wait for service message using handler.  
+ * 
+ * */
+
 public class RemoteBluetooth extends Activity {
 	
 	// Layout view
 	private TextView mTitle;
 	private TextView mData;
+	
 	
 	// Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -152,17 +164,19 @@ public class RemoteBluetooth extends Activity {
                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                 break;
                 
-                
             case MESSAGE_READ:
                
-            	
             	// here read the message and display.
-            	byte[] readBuf = (byte[]) msg.obj;
-            	String readMessage = new String(readBuf, 0, msg.arg1);
-                mData.setText("mData: "+readMessage);
-//                readBuf = null;
+            	try{
+                	String  readMessage = (String ) msg.obj;
+                	mData.setText("mnewData: \n"+readMessage );
+                	//	mData.setText("mnewData: \n"+readMessage+"\nThe length is"+msg.arg1+
+                //			"\nThe bytes is"+msg.arg2);
+            	}
+            	catch (Exception e) {
+            	    e.printStackTrace();
+            	}
                 break;
-                
                 
             case MESSAGE_TOAST:
                 Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
@@ -172,6 +186,8 @@ public class RemoteBluetooth extends Activity {
         }
     };
 	
+   
+    
     
     
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
