@@ -1,20 +1,26 @@
 package com.luugiathuy.apps.remotebluetooth;
 
-import java.util.AbstractQueue;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TimerTask;
-
 import android.text.format.Time;
 
 
 /*
- * This class do data processing, so it contians many math class: Datapoint and LowpassFilter.  
+ * This class do data processing, so it contians many math classes: Datapoint and LowpassFilter.  
  * */
-public  class MessageController
+public  class MessageController 
 {
-   
-     static boolean _continue;
+     
+	public static MessageController mcontroller = null; 
+	
+	 static boolean _continue;
+	 
+	 
+     
+     //Define flag message 
+     private static final int NoMove = 0;
+     private static final int MoveMent = 1;
 
      //timers and threads
      Thread readThread;
@@ -22,7 +28,7 @@ public  class MessageController
      static boolean isCalibrationdone = false;
      static long _starttime;
      static TimerTask falsepositive_timer;
-
+     
 
      //variables for gyroscope data
      static Queue<Double> _gyrx_bias_queue;
@@ -41,22 +47,36 @@ public  class MessageController
      //variables for gestures
      static LinkedList<Double[]> _rawgesturedata;
      static boolean _hasgesturestarted;
-     
-     
-  //   static boolean_hasgesturestarted;
      static int _gesture_threshold = 2;
-  //   static List<double[]> _rawgesturedata;
-  //   static Perceptron p1;
+     static Perceptron p1;
      static int mylabel;
-     static Double[] _GlobalFeatureVector;
+     static double[] _GlobalFeatureVector;
+     static boolean _Classification_done;
 
-	
+     
+    public static MessageController getinstant(){
+    	if(mcontroller== null){
+    		doSync ();
+    	}
+    	return mcontroller;
+    }
+    public static synchronized void doSync ()
+    {
+        if (mcontroller== null) {
+        	mcontroller = new  MessageController();
+        }
+    }
+    
 	public  MessageController(){
-
+		
+			
+		
 	        _gyrx_bias_queue = new LinkedList <Double>();
 
 	        _gyry_bias_queue = new LinkedList <Double>();
 	        _gyrz_bias_queue = new LinkedList <Double>();
+
+            p1 = new Perceptron(5, 28);
 
 	        _l1 = new LowpassFilter();
 	        _rawgesturedata = new LinkedList<Double[]>();
@@ -65,36 +85,24 @@ public  class MessageController
 	        
 	        started = false;
 	        isCalibrationdone = false;
-/*
-	        falsepositive_timer = new System.Windows.Threading.DispatcherTimer();
-	        falsepositive_timer.Tick += new EventHandler(falsepositive_timer_Tick);
-
-	        InitializeComponent();
-	        findallports();
-	        */
+	        _Classification_done = false;
+	        
+	        
 	}
- 
-    
-	
 	
 	/*
-	 * The most important function.
-	 * get datapoint 
-	 * calibration
-	 * movement judgement
-	 * send msg back to control panel.
-	 * 
+	 * The most important function. get datapoint  calibration movement judgment send msg back to control panel.
 	 * */
-    public static String Read(String msg)
+	public static synchronized int Read(String msg)
     {
-    	String back="noting";
+    	int backflag=NoMove;
             try
             {
             	//Get datapoint.
                 Datapoint datapoint = new Datapoint(msg);
                 //long temp=System.currentTimeMillis();
                 Time temp=new Time();
-              //  TimeSpan span = temp.Subtract(_starttime);
+                //TimeSpan span = temp.Subtract(_starttime);
                 
                 // If it haven't do calibration then do it . 
                 if (isCalibrationdone == false)
@@ -110,10 +118,11 @@ public  class MessageController
                         estimate_bias_value();
                         estimate_std_value();
                         isCalibrationdone = true;
+                        
+                        
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
                     }
-                    back="not calibrationdone";
                 }
                 else
                 {
@@ -140,32 +149,29 @@ public  class MessageController
                         gesturepoint[5] = datapoint.GyrZ() - _gyrz_bias;
                         _rawgesturedata.add(gesturepoint);
                         
-                        back= "add gesture";
-                        System.out.println("add gesture");
                     }
-                    
                     else
                     {
                         if (_rawgesturedata.size()> 50)     //has to be at least 10 seconds
                         {
-                        	System.out.println(_rawgesturedata.size());
+                        	System.out.println("totall data"+_rawgesturedata.size());
                         	
-  /*                        FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
-                            double[] featurevector = fd1.Featurevector;
- 
+                        	FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
+                            double[] featurevector = fd1.getFeaturevector();
                         	int label = p1.Predict(featurevector);
-                            speak_from_label(label);
+                        	_Classification_done = true;
                             _GlobalFeatureVector = featurevector;
- */                     _rawgesturedata.clear();
- 						System.out.println("movement detected");
-
-                        	
+                             
+                      
+                        	System.out.println("movement detected"+label);
+                        	backflag=label+1;
                         }
       /*                  System.out.println(temp.month + "," + temp.monthDay + "," + temp.year + "," + temp.hour + ","
                             + temp.minute + "," + temp.second + "," + temp.toMillis(false) + ",0,0,0,0,0,0");
-                       
+                      
       */
-                        back= "still";
+                        //clear the data array after stop.
+                        _rawgesturedata.clear();
                     }
                 }
             }
@@ -173,10 +179,8 @@ public  class MessageController
             	 System.out.println("Exception occurred here.");
             	 e.printStackTrace();
             }
-			return back;
+			return backflag;
     }
-
-    
    
 /*
     static private void falsepositive_timer_Tick(object sender, EventArgs e)
@@ -191,7 +195,6 @@ public  class MessageController
     }
  
 */
-
 
     static void estimate_bias_value()
     {
@@ -235,9 +238,6 @@ public  class MessageController
         _gyry_std = Math.sqrt(_gyry_std);
         _gyrz_std = Math.sqrt(_gyrz_std);
     }
-
-
-   
  
   /*  private void threshold_slider_ValueChanged(Object sender, RoutedPropertyChangedEventArgs<Double> e)
     {
@@ -245,4 +245,18 @@ public  class MessageController
     }
 
    */
+    
+    //Here is the code for test 
+    public synchronized void button_Click(int label)
+    {
+        mylabel = label-1;
+        if(_Classification_done==true)
+        p1.UpdatePerceptron(_GlobalFeatureVector, mylabel);
+        _Classification_done = false;
+    }
+    
+    
+    
+    
+    
 }

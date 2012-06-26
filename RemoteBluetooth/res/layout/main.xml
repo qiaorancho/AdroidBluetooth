@@ -9,4 +9,22 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="1.Next" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="2.Confirm" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="3.Back" />
+
 </LinearLayout>

@@ -195,6 +195,7 @@ public class BluetoothCommandService {
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
+    
     private void connectionFailed() {
         setState(STATE_LISTEN);
 
@@ -205,10 +206,11 @@ public class BluetoothCommandService {
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
-
+    
     /**
      * Indicate that the connection was lost and notify the UI Activity.
      */
+    
     private void connectionLost() {
     	
 //        mConnectionLostCount++;
@@ -310,7 +312,7 @@ public class BluetoothCommandService {
         private final OutputStream mmOutStream;
         private String old="";
         private int mydataflag =0;
-        MessageController myMsgCtrl =new MessageController();
+        MessageController myMsgCtrl =MessageController.getinstant();
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
@@ -408,18 +410,22 @@ public class BluetoothCommandService {
         		Log.e(TAG, "DataCenter", e);
         		e.getStackTrace();
         	}
-        	
         }
-
+/**
+ * 
+ * This function is used to Send flag back to Main activity using flag number.
+ * 
+ * */
+   
+        
         public void SendBack(String  msg){
-
-        	//data processing
-        	//String[] split_data=msg.split(",");
-        	//msg=split_data[1].concat("\n"+split_data[2]+"\n"+split_data[3]+"\n"+split_data[4]+"\n"+split_data[5]+"\n"+split_data[6]+"\n"+split_data[7]+"\n"+split_data[8]+"\n"+split_data[9]);
-        	msg=myMsgCtrl.Read(msg);
-        	//send back the tag(data).
         	
-         	mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ,msg)
+        	int returnflag=0;
+        	//data processing
+        	returnflag=myMsgCtrl.Read(msg);
+        	//send back the tag(data).
+        	if (returnflag != 0)
+         	mHandler.obtainMessage(RemoteBluetooth.MESSAGE_READ,returnflag,0,0)
     	 	.sendToTarget();
        }
         

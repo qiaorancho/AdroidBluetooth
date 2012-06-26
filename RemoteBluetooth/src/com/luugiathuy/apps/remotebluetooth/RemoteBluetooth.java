@@ -1,7 +1,5 @@
 package com.luugiathuy.apps.remotebluetooth;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,24 +7,36 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.speech.tts.TextToSpeech;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-
-
 /*
+ * 
  * The main GUI interface.
  * Function	: Main GUI and wait for service message using handler.  
  * 
  * */
 
 public class RemoteBluetooth extends Activity {
+	
+	// member for test movement training.
+	private Button mNext;
+	private Button mConfirm;
+	private Button mBack;
+	private MessageController mMsgclr= MessageController.getinstant();
+	private static TextToSpeech talker;
+	
+	
+	
 	
 	// Layout view
 	private TextView mTitle;
@@ -68,9 +78,42 @@ public class RemoteBluetooth extends Activity {
         // Set up the custom title
         mTitle = (TextView) findViewById(R.id.title_left_text);
         mData = (TextView) findViewById(R.id.DataTextView);
-        mData.setText("Waiting for input data..." );
+        mData.setTextSize(30);
+        mData.setText("Waiting for movement.\n" );
         mTitle.setText(R.string.app_name);
         mTitle = (TextView) findViewById(R.id.title_right_text);
+        
+        // Set up speaker.
+        talker=new TextToSpeech(this,null);
+        
+        
+        // Set up Button
+        mNext=(Button) findViewById(R.id.button1);
+        mConfirm=(Button) findViewById(R.id.button2);
+        mBack=(Button) findViewById(R.id.button3);
+        
+        mNext.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	talker.speak("Next", TextToSpeech.QUEUE_FLUSH, null);
+            	mMsgclr.button_Click(1);
+            }
+        });
+        mConfirm.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	talker.speak("Confirm", TextToSpeech.QUEUE_FLUSH, null);
+            	mMsgclr.button_Click(2);
+            }
+        });
+        mBack.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	talker.speak("Back", TextToSpeech.QUEUE_FLUSH, null);
+            	mMsgclr.button_Click(3);
+            }
+        });
+        
+        
+
+        
         
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -138,6 +181,7 @@ public class RemoteBluetooth extends Activity {
 	
 	// The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
+    	int msggot=0;
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -168,10 +212,9 @@ public class RemoteBluetooth extends Activity {
                
             	// here read the message and display.
             	try{
-                	String  readMessage = (String ) msg.obj;
-                	mData.setText("mnewData: \n"+readMessage );
-                	//	mData.setText("mnewData: \n"+readMessage+"\nThe length is"+msg.arg1+
-                //			"\nThe bytes is"+msg.arg2);
+            		msg.arg1=msg.arg1;
+            		msggot++;
+                	mData.setText("movement number: "+ msggot+"\nDetected label "+msg.arg1);
             	}
             	catch (Exception e) {
             	    e.printStackTrace();
@@ -186,8 +229,6 @@ public class RemoteBluetooth extends Activity {
         }
     };
 	
-   
-    
     
     
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
