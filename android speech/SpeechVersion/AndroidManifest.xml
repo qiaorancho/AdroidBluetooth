@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.luugiathuy.apps.remotebluetooth"
+      android:versionCode="1"
+      android:versionName="1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="7" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:name=".GestureSpeaker"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".List"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.LIST" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".Settings"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.SETTINGS" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".EditSensitivity"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.EDITSENSITIVITY" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        
+        <activity android:name=".EditDebug"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.EDITDEBUG" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        
+        
+        <activity android:name=".ManageSentence"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGESENTENCE" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".LoadProfile"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.LOADPROFILE" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ManageProfile"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGEPROFILE" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".DeviceListActivity"
+                  android:label="@string/select_device"
+                  android:theme="@android:style/Theme.Dialog"
+                  android:configChanges="orientation|keyboardHidden" />
+
+    </application>
+</manifest>
