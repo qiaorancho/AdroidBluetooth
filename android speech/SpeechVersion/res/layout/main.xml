@@ -16,7 +16,7 @@
         android:id="@+id/mProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="User:"
+        android:text="@string/user_"
          />
 		
 		<TextView
@@ -35,11 +35,31 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-		   
-		    <ListView
+
+	<RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" >
+		<ListView
 		        android:id="@+id/listView1"
 		        android:layout_width="fill_parent"
-		        android:layout_height="fill_parent" >
+		        android:layout_height="wrap_content" 
+		        android:layout_above="@+id/bGarbage">
 		    </ListView>
+		    
+		
+		
+	    
+		
+
+		    <Button
+		        android:id="@+id/bGarbage"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentBottom="true"
+		        android:text="@string/garbage_" />
+
+	</RelativeLayout>
+
+	
    
 </LinearLayout>

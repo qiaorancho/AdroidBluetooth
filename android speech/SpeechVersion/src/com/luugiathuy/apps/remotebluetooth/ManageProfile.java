@@ -46,10 +46,16 @@ public class ManageProfile extends ListActivity {
             public void onClick(View v) {
                 EditText edit = (EditText) findViewById(R.id.txtItem);
                 String tag=edit.getText().toString();
-                list.add(tag);
-                mPM.Add(mPM.mContext, tag);
-                edit.setText("");
-                adapter.notifyDataSetChanged();
+                
+                if (list.contains(tag)){
+                	Toast.makeText(getApplicationContext(), "User exists.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                	list.add(tag);
+                    mPM.Add(mPM.mContext, tag);
+                    edit.setText("");
+                    adapter.notifyDataSetChanged();
+                }
             }
         };
  

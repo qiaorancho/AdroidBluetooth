@@ -53,6 +53,9 @@ public  class MessageController
      static boolean _Classification_done;
      static  RawDebug mRawDebugger;
      
+     // perceptron matrix parameter.
+     static int NClASSES=11;
+     static int NDIMENSIONS=28;
 
      
     public static MessageController getinstant(){
@@ -76,7 +79,7 @@ public  class MessageController
 	        _gyry_bias_queue = new LinkedList <Double>();
 	        _gyrz_bias_queue = new LinkedList <Double>();
 
-            p1 = new Perceptron(10, 28);
+            p1 = new Perceptron(NClASSES, NDIMENSIONS);
 
 	        _l1 = new LowpassFilter();
 	        _rawgesturedata = new LinkedList<Double[]>();
@@ -127,7 +130,7 @@ public  class MessageController
                         estimate_std_value();
                         isCalibrationdone = true;
                         
-                        
+                        backflag=-1;
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
                     }
@@ -175,7 +178,7 @@ public  class MessageController
                 }
             }
             catch (Exception e) { 
-            	 System.out.println("Exception occurred here.");
+            	 System.out.println("Exception occurred here. read");
             	 e.printStackTrace();
             }
 			return backflag;
@@ -230,7 +233,9 @@ public  class MessageController
         _Classification_done = false;
     }
     
-    //send data to debugwriter.()
+    
+    
+    //send data to debugwriter.() for movemnet debug...but now we don't use it.
     public static  void recordData(){
     	@SuppressWarnings("unchecked")
 		LinkedList<Double[]>  mDebugdata= (LinkedList<Double[]>) _rawgesturedata.clone();

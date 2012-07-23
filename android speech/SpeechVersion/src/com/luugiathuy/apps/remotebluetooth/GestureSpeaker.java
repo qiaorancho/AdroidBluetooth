@@ -1,8 +1,5 @@
 package com.luugiathuy.apps.remotebluetooth;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,11 +13,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +35,7 @@ public class GestureSpeaker extends Activity {
 	private ProfileManager mPM = ProfileManager.getinstant();
 	private MessageController mMsgclr= MessageController.getinstant();
 	private static TextToSpeech talker;
-	private static String[] mString =new String[10];
+	private  String[] mString ;
 	int updateflag=1;
 	Toast mToast;
 	
@@ -50,8 +49,12 @@ public class GestureSpeaker extends Activity {
 	private TextView mTitle;
 	private TextView mData;
 	private TextView mIndex;
+	private TextView mPass;
 	private TextView mUserTitle;
 	private ListView listView;
+	
+	//button
+	private Button mButton;
 
 	// Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 100;
@@ -93,6 +96,9 @@ public class GestureSpeaker extends Activity {
         mPM.Start(this);
         mMsgclr.setIndex(mPM.mProfile.getSensitivity());
         
+        // Set up speaker.
+        talker=new TextToSpeech(this,null);
+        
         // Set up the window layout
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.main);
@@ -105,15 +111,37 @@ public class GestureSpeaker extends Activity {
         mUserTitle= (TextView) findViewById(R.id.mProfile);
         
         
+        
+        //Set up the button
+        mButton= (Button) findViewById(R.id.bGarbage);
+        //mPass= (Button) findViewById(R.id.bPass);
+        
+        mButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	
+                // Send a message using content of the edit text widget
+            	talker.speak("Garbage collected.", TextToSpeech.QUEUE_FLUSH, null);
+				if (updateflag==1){
+            		mMsgclr.Update(MessageController.NClASSES);
+            		mIndex.setText("Caliberated");
+            	}
+				else{
+					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
+				}
+            	updateflag+=1;
+            }
+        });
+        
+        
+        //set up my string
+        mString =new String[MessageController.NClASSES-1];
+        
         //mData.setTextSize(30);
         mData.setText("Waiting for movement." +"\nLong click to select sentence." );
         mTitle.setText(R.string.app_name);
         mTitle = (TextView) findViewById(R.id.title_right_text);
         mUserTitle.setText("User:"+mPM.mProfile.getName());
         
-        // Set up speaker.
-        talker=new TextToSpeech(this,null);
-       
         /* for(int i=0;i<10;i++){
         	msgstring[i]=myvalues[i];	
         }
@@ -122,7 +150,7 @@ public class GestureSpeaker extends Activity {
         //set up listview
         listView= (ListView) findViewById(R.id.listView1);
 
-        for(int i=0;i<10;i++){
+        for(int i=0;i<MessageController.NClASSES-1;i++){
         	mString[i]=mPM.mProfile.mValues[i];
         }
         
@@ -245,12 +273,20 @@ public class GestureSpeaker extends Activity {
                
             	// here read the message and display.
             	try{
-            		msggot++;
-                	mData.setText("Movement number: "+ msggot+"\nGesture "+msg.arg1);
-                	updateflag=0;
-                	//send the click message.
-                	listView.performItemClick(listView, msg.arg1-1,listView.getItemIdAtPosition(msg.arg1-1));
-                	mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
+            		if(msg.arg1==-1){
+            			mIndex.setText("Initialization finished.");
+            		}
+            		else{
+            			msggot++;
+                    	mData.setText("Movement number: "+ msggot+"\nGesture "+msg.arg1);
+                    	updateflag=0;
+                    	//send the click message.
+                    	if(msg.arg1==MessageController.NClASSES)
+                    		updateflag=1;
+                    	else
+                    		listView.performItemClick(listView, msg.arg1-1,listView.getItemIdAtPosition(msg.arg1-1));
+                    	mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
+            		}
             	}
             	catch (Exception e) {
             	    e.printStackTrace();
@@ -267,7 +303,7 @@ public class GestureSpeaker extends Activity {
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
         
-		for ( int index=1;index<=10;index++){
+		for ( int index=1;index<=MessageController.NClASSES-1;index++){
     		if(index == requestCode ){
     			if (resultCode == RESULT_OK) {
     				Bundle extras = new Bundle();
@@ -281,7 +317,6 @@ public class GestureSpeaker extends Activity {
     			break;
     			}
     	}
-		
 		switch (requestCode) {
         case REQUEST_CONNECT_DEVICE:
             // When DeviceListActivity returns with a device to connect
@@ -342,14 +377,13 @@ public class GestureSpeaker extends Activity {
 			mCommandService.write(BluetoothCommandService.VOL_DOWN);
 			return true;
 		}
-		
 		return super.onKeyDown(keyCode, event);
 	}
 	
 	public void  updateView(){
 
 		mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
-		for(int i=0;i<10;i++){
+		for(int i=0;i<MessageController.NClASSES-1;i++){
         	mString[i]=mPM.mProfile.mValues[i];
         }
 		mMsgclr.mIndex=mPM.mProfile.getSensitivity();

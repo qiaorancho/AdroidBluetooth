@@ -23,7 +23,7 @@ public class Profile implements Serializable {
 	public String[] mString;
 	private int mSensitivity;
 	private int mDebug;
-	private double [][] mWeight=new double[10][28];
+	private double [][] mWeight;
 	private LinkedList<String> mList=new LinkedList<String>();
 	public ArrayList<String> mSentence;
 
@@ -41,13 +41,19 @@ public class Profile implements Serializable {
 		mName="Root";
 		mSensitivity=3;
 		mDebug=0;
-		mValues = new String[] { "Gesture 1", "Gesture 2", "Gesture 3",
-				"Gesture 4", "Gesture 5", "Gesture 6",
-				"Gesture 7", "Gesture 8", "Gesture 9","Gesture 10"};
-		mString=new String[10];
-		for(int i=0;i<10;i++){
-        	mString[i]=mValues[i];	
-        }
+		mWeight=new double[MessageController.NClASSES][MessageController.NDIMENSIONS];
+		//Initialize with 10...
+		mValues =Initial_String(MessageController.NClASSES-1);
+		mString=mValues.clone();
+	}
+	
+	public static String[] Initial_String(int input){
+		String[] lstring=new String[input];
+		for(int i=0;i<input;i++){
+			lstring[i]="Gesture ";
+			lstring[i]=lstring[i].concat(String.valueOf(i+1));
+		}
+		return lstring;
 	}
 	
 	public void InitializeSentence(){
@@ -211,16 +217,14 @@ public class Profile implements Serializable {
 	}
 	public static void clear(Profile pro){
 		pro.mSensitivity=3;
-		String[] re =new String[]{ "Gesture 1", "Gesture 2", "Gesture 3",
-				"Gesture 4", "Gesture 5", "Gesture 6",
-				"Gesture 7", "Gesture 8", "Gesture 9","Gesture 10"};
-		for(int i=0;i<10;i++){
-			pro.mValues[i]=re[i];
-        	pro.mString[i]=pro.mValues[i];	
-        }
-		for (int i = 0; i < 10; i++)
+		//reset. If Nclasses and Ndimension changes, here will be a problem.
+		String[] re =Initial_String(MessageController.NClASSES-1);
+		pro.mValues=re.clone();
+		pro.mString=re.clone();
+		
+		for (int i = 0; i <MessageController.NClASSES; i++)
         {
-            for (int j = 0; j < 28; j++)
+            for (int j = 0; j < MessageController.NDIMENSIONS; j++)
                 pro.mWeight[i][j] = 0;
         }
 		

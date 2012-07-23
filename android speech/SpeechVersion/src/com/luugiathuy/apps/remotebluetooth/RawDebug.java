@@ -28,9 +28,18 @@ public class RawDebug {
     
     Double [] myData;
     
+    int dirFlag;
+    
     public RawDebug () throws IOException{
     	
+    	dirFlag=0;
+    	
+    }
+    
+    
+    public void Start(){
     	try{
+    		dirFlag=1;
     		dir1.mkdirs();
         	file1= new File(dir1,today1+"_Raw_debug.txt");
         	
@@ -44,9 +53,7 @@ public class RawDebug {
     		e.getStackTrace();
     		System.out.println("Raw data exception!");
     	}
-    	
     }
-    
     
     /*
     public RawDebug (Double [] input) throws IOException{
@@ -70,11 +77,13 @@ public class RawDebug {
     } 
     
     */
-    public void Debug(Double [] input,ProfileManager mPM){
+    public synchronized void  Debug(Double [] input,ProfileManager mPM){
     	
     	if( mPM.mProfile.getDebug()==1){
+    		Start();
     		myData=input;
-    		String datastring =sss.format(new Date());
+    		Date myDay=new Date();
+    		String datastring =sss.format(myDay);
     		try {
     			fileWritter1 = new FileWriter(file1 ,true);
     		} catch (IOException e1) {
@@ -84,7 +93,7 @@ public class RawDebug {
     		}
     		BufferedWriter bufferWritter1 = new BufferedWriter(fileWritter1);
     		bufferWritter1 = new BufferedWriter(fileWritter1);	
-    		int seconds100 = (int) ((System.currentTimeMillis() / 10) % 100);
+    		int seconds100 = (int) ((myDay.getTime()/ 10) % 100);
     		datastring=datastring.concat(String.format(",%2d",seconds100));
     		for(int j=0;j<myData.length;j++){
     			datastring=datastring.concat(","+String.valueOf(myData[j]));

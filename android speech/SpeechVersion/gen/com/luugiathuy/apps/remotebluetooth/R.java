@@ -15,9 +15,10 @@ public final class R {
     }
     public static final class id {
         public static final int DataTextView=0x7f06000d;
-        public static final int bottomtext=0x7f060012;
-        public static final int btnAdd=0x7f06000f;
-        public static final int btnDel=0x7f060010;
+        public static final int bGarbage=0x7f06000e;
+        public static final int bottomtext=0x7f060013;
+        public static final int btnAdd=0x7f060010;
+        public static final int btnDel=0x7f060011;
         public static final int button_scan=0x7f060008;
         public static final int listView1=0x7f060009;
         public static final int list_item=0x7f06000a;
@@ -25,16 +26,16 @@ public final class R {
         public static final int mProfile=0x7f06000b;
         public static final int new_devices=0x7f060007;
         public static final int paired_devices=0x7f060005;
-        public static final int reset=0x7f060014;
-        public static final int scan=0x7f060013;
+        public static final int reset=0x7f060015;
+        public static final int scan=0x7f060014;
         public static final int textView1=0x7f060003;
         public static final int title_left_text=0x7f060000;
         public static final int title_new_devices=0x7f060006;
         public static final int title_paired_devices=0x7f060004;
         public static final int title_right_text=0x7f060001;
         public static final int toggleButton1=0x7f060002;
-        public static final int toptext=0x7f060011;
-        public static final int txtItem=0x7f06000e;
+        public static final int toptext=0x7f060012;
+        public static final int txtItem=0x7f06000f;
     }
     public static final class layout {
         public static final int custom_title=0x7f030000;
@@ -57,12 +58,14 @@ public final class R {
         public static final int button_scan=0x7f040006;
         public static final int connect=0x7f04000b;
         public static final int discoverable=0x7f04000c;
+        public static final int garbage_=0x7f040016;
         public static final int hello=0x7f040000;
         public static final int hintTxtItem=0x7f040011;
         public static final int lblBtnAdd=0x7f040012;
         public static final int lblBtnDel=0x7f040014;
         public static final int none_found=0x7f040009;
         public static final int none_paired=0x7f040007;
+        public static final int pass_=0x7f040017;
         public static final int reset=0x7f04000d;
         public static final int scanning=0x7f040008;
         public static final int select_device=0x7f04000a;
@@ -72,5 +75,6 @@ public final class R {
         public static final int title_other_devices=0x7f040005;
         public static final int title_paired_devices=0x7f040004;
         public static final int txtEmpty=0x7f040013;
+        public static final int user_=0x7f040015;
     }
 }

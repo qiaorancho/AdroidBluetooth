@@ -21,4 +21,8 @@
     <string name="lblBtnAdd">Add</string>
     <string name="txtEmpty">List is empty</string>
     <string name="lblBtnDel">Delete Selected Items</string>
+    <string name="user_">User:</string>
+    <string name="garbage_">Garbage movements collector.</string>
+    <string name="pass_">Initialize</string>
+    
 </resources>
