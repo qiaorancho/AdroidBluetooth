@@ -95,10 +95,14 @@ public  class MessageController
 				e.printStackTrace();
 				 System.out.println("Raw initialization");
 			}
+	
 	}
-
 	public   void setIndex(int in){
     	mIndex=in;
+    }
+
+	public synchronized   void setCalibration(boolean in){
+		isCalibrationdone =in;
     }
 	
 	/**
@@ -128,8 +132,8 @@ public  class MessageController
                     {
                         estimate_bias_value();
                         estimate_std_value();
-                        isCalibrationdone = true;
-                        
+                        Calibrationdone();
+
                         backflag=-1;
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
@@ -224,6 +228,16 @@ public  class MessageController
         _gyry_std = Math.sqrt(_gyry_std);
         _gyrz_std = Math.sqrt(_gyrz_std);
     }
+
+    static  void Calibrationdone(){
+    	isCalibrationdone=true;
+    	_rawgesturedata.clear();
+    	_gyrx_bias_queue.clear();
+    	_gyry_bias_queue.clear();
+    	_gyrz_bias_queue.clear();
+    }
+    
+    
     // Update the Perceptron Weight Matrix.
     public void Update(int label)
     {
@@ -233,8 +247,6 @@ public  class MessageController
         _Classification_done = false;
     }
     
-    
-    
     //send data to debugwriter.() for movemnet debug...but now we don't use it.
     public static  void recordData(){
     	@SuppressWarnings("unchecked")
@@ -243,5 +255,4 @@ public  class MessageController
         Thread t = new Thread(mDebbugger);
         t.start();
     }
-    
 }

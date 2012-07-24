@@ -3,6 +3,7 @@ package com.luugiathuy.apps.remotebluetooth;
 import java.util.LinkedList;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -52,13 +53,19 @@ public class ManageProfile extends ListActivity {
                 }
                 else{
                 	list.add(tag);
-                    mPM.Add(mPM.mContext, tag);
                     edit.setText("");
+                    mPM.Add(mPM.mContext, tag);
                     adapter.notifyDataSetChanged();
+                    
+                    Bundle extras = new Bundle();
+                    Intent i = new Intent();
+    				extras.putString("text", tag);
+    				i.putExtras(extras);
+    				setResult(RESULT_OK, i);
                 }
             }
         };
- 
+        
         /** Defining a click event listener for the button "Delete" */
         OnClickListener listenerDel = new OnClickListener() {
             @Override
@@ -75,7 +82,6 @@ public class ManageProfile extends ListActivity {
                         	mPM.Delete(mPM.mContext, list.get(i));	
                         	adapter.remove(list.get(i));
                         }
-                        
                     }
                 }
                 adapter.notifyDataSetChanged();

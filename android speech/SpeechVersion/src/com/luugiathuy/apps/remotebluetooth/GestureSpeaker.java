@@ -36,7 +36,7 @@ public class GestureSpeaker extends Activity {
 	private MessageController mMsgclr= MessageController.getinstant();
 	private static TextToSpeech talker;
 	private  String[] mString ;
-	int updateflag=1;
+	int updateflag=2;
 	Toast mToast;
 	
 	//testing list view
@@ -59,7 +59,7 @@ public class GestureSpeaker extends Activity {
 	// Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 100;
     private static final int REQUEST_ENABLE_BT = 101;
-    
+    public static final int PROFILE_USER_CHANGED = 102;
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -114,12 +114,13 @@ public class GestureSpeaker extends Activity {
         
         //Set up the button
         mButton= (Button) findViewById(R.id.bGarbage);
-        //mPass= (Button) findViewById(R.id.bPass);
+        mPass= (Button) findViewById(R.id.bPass);
         
         mButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	
                 // Send a message using content of the edit text widget
+            	if (updateflag<100)
             	talker.speak("Garbage collected.", TextToSpeech.QUEUE_FLUSH, null);
 				if (updateflag==1){
             		mMsgclr.Update(MessageController.NClASSES);
@@ -128,7 +129,32 @@ public class GestureSpeaker extends Activity {
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
 				}
+				if (updateflag<99)
             	updateflag+=1;
+            }
+        });
+        
+        
+        mPass.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // Send a message using content of the edit text widget
+            	
+            	if(mCommandService.getState()==BluetoothCommandService.STATE_CONNECTED)
+            	{
+            		if(mPass.getText().toString().equals("Initialize")){
+            			
+                		mCommandService.setFlag(true);
+                		talker.speak("Initialization.", TextToSpeech.QUEUE_FLUSH, null);
+                		
+            		}
+            		else {
+                		updateflag=100;
+                	}
+            	}
+            	else{
+            		Toast.makeText(GestureSpeaker.this, "Please connect a device.", Toast.LENGTH_SHORT).show();
+            	}
+            	
             }
         });
         
@@ -162,6 +188,7 @@ public class GestureSpeaker extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
+				if (updateflag<100)
 				talker.speak(mPM.mProfile.getString()[arg2], TextToSpeech.QUEUE_FLUSH, null);
 				if (updateflag==1){
             		mMsgclr.Update(arg2+1);
@@ -170,6 +197,7 @@ public class GestureSpeaker extends Activity {
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
 				}
+				if (updateflag<99)
             	updateflag+=1;
 			}
 		});
@@ -185,9 +213,9 @@ public class GestureSpeaker extends Activity {
 			}
 		});
 
-        // Get local Bluetooth adapter
+		
+		// Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -199,7 +227,6 @@ public class GestureSpeaker extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
 		// If BT is not on, request that it be enabled.
         // setupCommand() will then be called during onActivityResult
 		if (!mBluetoothAdapter.isEnabled()) {
@@ -275,6 +302,7 @@ public class GestureSpeaker extends Activity {
             	try{
             		if(msg.arg1==-1){
             			mIndex.setText("Initialization finished.");
+            			mPass.setText("   Pass   ");
             		}
             		else{
             			msggot++;
@@ -330,6 +358,21 @@ public class GestureSpeaker extends Activity {
                 mCommandService.connect(device);
             }
             break;
+            
+            
+        case PROFILE_USER_CHANGED:
+            System.out.println("User changed on result in main activity. ");
+            if (resultCode == Activity.RESULT_OK) {
+            	if(mCommandService.getState()==BluetoothCommandService.STATE_CONNECTED)
+            	{
+            		System.out.println("User changed on result in main activity. settting");
+                		mCommandService.setFlag(false);
+                		mMsgclr.setCalibration(false);
+            	}
+            }
+            break;
+            
+            
         case REQUEST_ENABLE_BT:
             // When the request to enable Bluetooth returns
             if (resultCode == Activity.RESULT_OK) {
@@ -361,7 +404,7 @@ public class GestureSpeaker extends Activity {
         case R.id.reset: 
             // reset all the data here
         	Intent i = new Intent(GestureSpeaker.this, Settings.class);
-			startActivity(i );
+        	 startActivityForResult(i,PROFILE_USER_CHANGED);
         	
             return true;
         }
@@ -390,6 +433,8 @@ public class GestureSpeaker extends Activity {
 		mUserTitle.setText("User:"+mPM.mProfile.getName());
 		mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
 		listView.invalidateViews();
+		if(mCommandService==null || mCommandService.isCalibrationdone == false)
+			mPass.setText("Initialize");
 	}
 	
 }

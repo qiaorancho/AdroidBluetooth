@@ -52,7 +52,7 @@ public class Settings extends ListActivity {
 				} 
 				else if (arg2 ==1){
 					Intent i = new Intent(Settings.this, ManageProfile.class);
-					startActivity(i);	
+					startActivityForResult(i,ForPro);	
 				}
 				else if (arg2 == 2){
 					Intent i = new Intent(Settings.this, ManageSentence.class);
@@ -70,7 +70,15 @@ public class Settings extends ListActivity {
 				else if (arg2==5){
 					mPM.reSet(mPM.mContext, mPM.mProfile.getName());
 					mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
-					Toast.makeText(mPM.mContext,
+					
+					//reset initialization part.
+					Bundle extras1 = new Bundle();
+    				Intent i = new Intent();
+    				extras1.putString("text", text_final);
+    				i.putExtras(extras1);
+    				setResult(RESULT_OK, i);
+    				
+    				Toast.makeText(mPM.mContext,
 							"Reset", Toast.LENGTH_SHORT).show();
 					
 				}
@@ -119,11 +127,19 @@ public class Settings extends ListActivity {
 			switch (requestCode) {
 			case ForPro:
 		    			if (resultCode == RESULT_OK) {
+		    				
 		    				Bundle extras = new Bundle();
 		    				extras = data.getExtras();
 		    				String tag  = extras.getString("text");
 		    				//mButton[index-1].setText(String.valueOf(index)+"." + tag);
-		    				mPM.Add(mPM.mContext, tag);
+		    				
+		    					System.out.println("User changed on result in seting. add new ");
+		    					Bundle extras1 = new Bundle();
+		        				Intent i = new Intent();
+		        				extras1.putString("text", text_final);
+		        				i.putExtras(extras1);
+		        				setResult(RESULT_OK, i);
+		                        
 		    				}
 				break ;
 			case ForSen:
@@ -141,6 +157,14 @@ public class Settings extends ListActivity {
     				extras = data.getExtras();
     				String tag  = extras.getString("text");
     				//mButton[index-1].setText(String.valueOf(index)+"." + tag);
+    				
+    				if(!mPM.mProfile.getName().equals(tag)){
+    					Bundle extras1 = new Bundle();
+        				Intent i = new Intent();
+        				extras1.putString("text", text_final);
+        				i.putExtras(extras1);
+        				setResult(RESULT_OK, i);
+    				}
     				mPM.Change(mPM.mContext, tag);
     				}
     			break ;

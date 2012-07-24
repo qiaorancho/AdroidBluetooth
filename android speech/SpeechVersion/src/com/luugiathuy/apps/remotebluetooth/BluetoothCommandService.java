@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-
 /*
  *
  * Function: Connection then start to read data and also try to write.
@@ -38,6 +37,8 @@ public class BluetoothCommandService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
+    private BluetoothSocket mSocket_forflag=null;
+    
 //    private BluetoothDevice mSavedDevice;
 //    private int mConnectionLostCount;
     
@@ -53,6 +54,10 @@ public class BluetoothCommandService {
     public static final int VOL_DOWN = 2;
     public static final int MOUSE_MOVE = 3;
     
+    //Calibration flag
+    public boolean isCalibrationdone = false ;
+
+    
     /**
      * Constructor. Prepares a new BluetoothChat session.
      * @param context  The UI Activity Context
@@ -64,7 +69,6 @@ public class BluetoothCommandService {
     	//mConnectionLostCount = 0;
     	mHandler = handler;
     }
-    
     /**
      * Set the current state of the chat connection
      * @param state  An integer defining the current connection state
@@ -76,7 +80,13 @@ public class BluetoothCommandService {
         // Give the new state to the Handler so the UI Activity can update
         mHandler.obtainMessage(GestureSpeaker.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
-
+    
+    public synchronized void setFlag(boolean in) {
+        if (D) Log.d(TAG, "setFlag() " + isCalibrationdone + " -> " + in);
+        isCalibrationdone = in;
+    }
+    
+    
     /**
      * Return the current connection state. */
     public synchronized int getState() {
@@ -134,6 +144,8 @@ public class BluetoothCommandService {
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
         // Start the thread to manage the connection and perform transmissions
+        // Now we need wait for initialization to start. and we store socket..
+        //setFlagSocket(socket);
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
 
@@ -335,14 +347,17 @@ public class BluetoothCommandService {
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
-            
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                 	// Read from the InputStream
                 	int bytes = mmInStream.read(buffer);
+
+                	if (isCalibrationdone)
                 	DataCenter(buffer,bytes);
-                 
+                	else 
+                		mydataflag=0;
+                
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -365,7 +380,6 @@ public class BluetoothCommandService {
                 	Log.e(TAG, "no pointer", e);
             		e.getStackTrace();
                 }
-                
                //Check the first "\n" key character.
                 if(mydataflag ==0 ){
                 	countnew=newstring.length();
@@ -416,8 +430,6 @@ public class BluetoothCommandService {
  * This function is used to Send flag back to Main activity using flag number.
  * 
  * */
-   
-        
         public void SendBack(String  msg){
         	
         	int returnflag=0;
@@ -428,7 +440,6 @@ public class BluetoothCommandService {
          	mHandler.obtainMessage(GestureSpeaker.MESSAGE_READ,returnflag,0,0)
     	 	.sendToTarget();
        }
-        
         /**
          * Write to the connected OutStream.
          * @param buffer  The bytes to write
@@ -444,7 +455,6 @@ public class BluetoothCommandService {
                 Log.e(TAG, "Exception during write", e);
             }
         }
-        
         public void write(int out) {
         	try {
                 mmOutStream.write(out);
@@ -456,7 +466,6 @@ public class BluetoothCommandService {
                 Log.e(TAG, "Exception during write", e);
             }
         }
-
         public void cancel() {
             try {
             	mmOutStream.write(EXIT_CMD);
