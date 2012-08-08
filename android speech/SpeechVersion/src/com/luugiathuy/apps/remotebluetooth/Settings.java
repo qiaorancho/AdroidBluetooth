@@ -70,7 +70,7 @@ public class Settings extends ListActivity {
 				else if (arg2==5){
 					mPM.reSet(mPM.mContext, mPM.mProfile.getName());
 					mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
-					
+					mMsgclr.p1._PerceptronPoints.clear();
 					//reset initialization part.
 					Bundle extras1 = new Bundle();
     				Intent i = new Intent();
@@ -164,6 +164,7 @@ public class Settings extends ListActivity {
         				extras1.putString("text", text_final);
         				i.putExtras(extras1);
         				setResult(RESULT_OK, i);
+        				mMsgclr.p1._PerceptronPoints.clear();
     				}
     				mPM.Change(mPM.mContext, tag);
     				}

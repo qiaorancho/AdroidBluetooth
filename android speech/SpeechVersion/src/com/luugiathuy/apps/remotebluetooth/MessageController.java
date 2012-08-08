@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TimerTask;
-
-import android.text.format.Time;
 /*
  * This class do data processing, so it contians many math classes: Datapoint and LowpassFilter.  
  * */
@@ -100,10 +98,16 @@ public  class MessageController
 	public   void setIndex(int in){
     	mIndex=in;
     }
+	
 
 	public synchronized   void setCalibration(boolean in){
 		isCalibrationdone =in;
     }
+	
+	public  int getmylabel(){
+    	return mylabel;
+    }
+	
 	
 	/**
 	 * The most important function. get datapoint  calibration movement judgment send msg back to control panel.
@@ -137,6 +141,7 @@ public  class MessageController
                         backflag=-1;
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
+                    
                     }
                 }
                 else
@@ -171,6 +176,7 @@ public  class MessageController
                             _GlobalFeatureVector = featurevector;
                              
                         	System.out.println("movement detected"+label);
+                        	mylabel=label;
                         	backflag=label+1;
                         	//every movement send data to debug
                         //	recordData();

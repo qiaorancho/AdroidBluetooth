@@ -34,9 +34,11 @@ public class GestureSpeaker extends Activity {
 	// member for test movement training.
 	private ProfileManager mPM = ProfileManager.getinstant();
 	private MessageController mMsgclr= MessageController.getinstant();
+	private UserOperationLog mUol=new UserOperationLog(); 
 	private static TextToSpeech talker;
 	private  String[] mString ;
 	int updateflag=2;
+	public int mMsggotNo=0;
 	Toast mToast;
 	
 	//testing list view
@@ -84,7 +86,6 @@ public class GestureSpeaker extends Activity {
 	// Third parameter - ID of the View to which the data is written
 	// Forth - the Array of data
     
-    
     /** 
      * Called when the activity is first created. */
     
@@ -111,10 +112,9 @@ public class GestureSpeaker extends Activity {
         mUserTitle= (TextView) findViewById(R.id.mProfile);
         
         
-        
         //Set up the button
-        mButton= (Button) findViewById(R.id.bGarbage);
         mPass= (Button) findViewById(R.id.bPass);
+        mButton= (Button) findViewById(R.id.bGarbage);
         
         mButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -123,9 +123,12 @@ public class GestureSpeaker extends Activity {
             	if (updateflag<100)
             	talker.speak("Garbage collected.", TextToSpeech.QUEUE_FLUSH, null);
 				if (updateflag==1){
+					int backlabel=mMsgclr.getmylabel();
             		mMsgclr.Update(MessageController.NClASSES);
             		mIndex.setText("Caliberated");
-            	}
+            		mUol.Debug(10, backlabel, mPM, mMsgclr);
+            		
+				}
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
 				}
@@ -145,6 +148,7 @@ public class GestureSpeaker extends Activity {
             			
                 		mCommandService.setFlag(true);
                 		talker.speak("Initialization.", TextToSpeech.QUEUE_FLUSH, null);
+                		mUol.Debug(-1, -1, mPM, mMsgclr);
                 		
             		}
             		else {
@@ -191,8 +195,10 @@ public class GestureSpeaker extends Activity {
 				if (updateflag<100)
 				talker.speak(mPM.mProfile.getString()[arg2], TextToSpeech.QUEUE_FLUSH, null);
 				if (updateflag==1){
+					int backlabel=mMsgclr.getmylabel();
             		mMsgclr.Update(arg2+1);
             		mIndex.setText("Caliberated");
+            		mUol.Debug(arg2, backlabel, mPM, mMsgclr);
             	}
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
@@ -223,7 +229,6 @@ public class GestureSpeaker extends Activity {
             return;
         }
     }
-
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -239,7 +244,6 @@ public class GestureSpeaker extends Activity {
 				setupCommand();
 		}
 	}
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -267,11 +271,13 @@ public class GestureSpeaker extends Activity {
 		if (mCommandService != null)
 			mCommandService.stop();
 		mPM.Save(this);
+		System.out.println("User changed on result in main activity. main destroy");
+		mCommandService.setFlag(false);
+		mMsgclr.setCalibration(false);
 	}
 	
 	// The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
-    	int msggot=0;
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -305,8 +311,8 @@ public class GestureSpeaker extends Activity {
             			mPass.setText("   Pass   ");
             		}
             		else{
-            			msggot++;
-                    	mData.setText("Movement number: "+ msggot+"\nGesture "+msg.arg1);
+            			mMsggotNo++;
+                    	mData.setText("Movement number: "+ mMsggotNo+"\nGesture "+msg.arg1);
                     	updateflag=0;
                     	//send the click message.
                     	if(msg.arg1==MessageController.NClASSES)
@@ -372,7 +378,6 @@ public class GestureSpeaker extends Activity {
             }
             break;
             
-            
         case REQUEST_ENABLE_BT:
             // When the request to enable Bluetooth returns
             if (resultCode == Activity.RESULT_OK) {
@@ -433,8 +438,32 @@ public class GestureSpeaker extends Activity {
 		mUserTitle.setText("User:"+mPM.mProfile.getName());
 		mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
 		listView.invalidateViews();
-		if(mCommandService==null || mCommandService.isCalibrationdone == false)
+		if(mCommandService==null || mCommandService.isCalibrationdone == false){
+			updateflag=2;
 			mPass.setText("Initialize");
+			mData.setText("Movement number: "+ 0+"\nGesture");
+		    mMsggotNo=0;
+		}
+		check_matrix (mMsgclr.p1._WeightMatrix);
+		
 	}
+	
+	//check reset works or not.
+	private void check_matrix(double [][] _WeightMatrix)
+    {
+		int sum=0;
+        for (int i = 0; i < MessageController.NClASSES; i++)
+        {
+            for (int j = 0; j < MessageController.NDIMENSIONS; j++)
+            {
+            	if(_WeightMatrix[i ][j]!=0)
+                sum+=1;
+            }
+        }
+        if (sum==0)
+            ;//  Toast.makeText(this, "noting .. 0000", Toast.LENGTH_SHORT).show();
+        
+    }
+	
 	
 }

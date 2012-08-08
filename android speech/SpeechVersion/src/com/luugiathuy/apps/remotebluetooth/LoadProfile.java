@@ -22,7 +22,7 @@ public class LoadProfile extends ListActivity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setListAdapter(new ArrayAdapter<String>(this, R.layout.list,mPM.mProfile.getList(mPM.mContext) ));
-
+			
 		ListView list = getListView();
 		list.setTextFilterEnabled(true);
 		list.setOnItemClickListener(new OnItemClickListener() {
@@ -42,5 +42,4 @@ public class LoadProfile extends ListActivity {
 			}
 		});
 	}
-
 }

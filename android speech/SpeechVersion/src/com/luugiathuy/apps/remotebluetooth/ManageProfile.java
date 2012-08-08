@@ -16,6 +16,7 @@ import android.widget.Toast;
 public class ManageProfile extends ListActivity {
  
 	private ProfileManager mPM = ProfileManager.getinstant();
+	private MessageController mMsgclr= MessageController.getinstant();
     /** Items entered by the user is stored in this ArrayList variable */
     LinkedList<String> list = new LinkedList<String>();
 	
@@ -55,6 +56,7 @@ public class ManageProfile extends ListActivity {
                 	list.add(tag);
                     edit.setText("");
                     mPM.Add(mPM.mContext, tag);
+                    mMsgclr.p1._PerceptronPoints.clear();
                     adapter.notifyDataSetChanged();
                     
                     Bundle extras = new Bundle();
@@ -79,6 +81,11 @@ public class ManageProfile extends ListActivity {
                         	Toast.makeText(getApplicationContext(),"Can't delete Root.",Toast.LENGTH_SHORT ).show();
                         }
                         else{
+                        	if(list.get(i).equals(mPM.mProfile.getName())){
+                        		mMsgclr.p1._PerceptronPoints.clear();
+                        		Toast.makeText(getApplicationContext(),"Current user deleted, change to root.",Toast.LENGTH_SHORT ).show();
+                        	}
+                        		
                         	mPM.Delete(mPM.mContext, list.get(i));	
                         	adapter.remove(list.get(i));
                         }

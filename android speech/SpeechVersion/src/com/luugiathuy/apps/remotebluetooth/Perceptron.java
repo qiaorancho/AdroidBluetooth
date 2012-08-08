@@ -77,11 +77,13 @@ public class Perceptron
             while (er == 1)
             {
                 int errors = 0;
+                System.out.println("Updating... order is");
                 for (InputAndOutput input : _PerceptronPoints)
                 {
                     //for (int i = 0; i < 10; i++)
                     //    Console.Write(input.inputpoint[i] + " ");
                     //Console.WriteLine();
+                	System.out.println("looping looping ....");
                     double[] algorithm_labels = winner_takes_all(input.getinputpoint());//calculate error matrix
                     update_weight_matrix(input.getinputpoint(), check_class(input.getalgorithmlabels(), algorithm_labels));
                     errors += find_errors(input.getalgorithmlabels(), algorithm_labels);
@@ -125,7 +127,7 @@ public class Perceptron
             
             //calculate weightmatrix
             for (int i = 0; i < _NClasses; i++)
-            {
+            {	
                 for (int j = 0; j < _NDimensions; j++)
                 {
                     //Console.Write(_WeightMatrix[i,j]+" ");
@@ -135,7 +137,6 @@ public class Perceptron
             }
 
             System.out.println("Classweight matrix end. ");
-            
             for (int i = 0; i < _NClasses; i++)
             {
                 if (classweights[i] > _MaxValue)
@@ -146,7 +147,8 @@ public class Perceptron
             }
             
             //get second max and see if max and second max similar.
-             for (int i = 0; i < _NClasses; i++)
+             
+            /*for (int i = 0; i < _NClasses; i++)
             {
             	if (i!=_MaxIndex&&classweights[i] > _SecondMax)
                 {
@@ -154,8 +156,10 @@ public class Perceptron
                     TempIndex=i;
                 }
             }
-             System.out.println("This is rate "+ _MaxValue/_SecondMax);
              
+             System.out.println("This is rate "+ _MaxValue/_SecondMax);
+             */
+            
             //generate the class vector
             for (int i = 0; i < _NClasses; i++)
             {
@@ -165,6 +169,7 @@ public class Perceptron
                     MyClassLabelling[i] = 0;
                 
             }
+            System.out.println("winner label is "+_MaxIndex);
             return MyClassLabelling;
         }
 
@@ -180,7 +185,9 @@ public class Perceptron
             //Console.WriteLine();
             return error;
         }
-
+        
+        
+        //double parameter?? 
         private double[] check_class(double[] ground_truth_class_labels, double[] algorithm_class_labels)
         {
             double[] class_difference = new double[_NClasses];
