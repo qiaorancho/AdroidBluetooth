@@ -19,4 +19,12 @@ public class InputAndOutput
          
                 return _AlgorithmLabel;
         }
+        public int getindex(){
+        	int len=_AlgorithmLabel.length;
+        	for (int i=0;i<len;i++){
+        		if (_AlgorithmLabel[i]==1)
+        			return i;
+        	}
+        		return -1;
+        }
 }

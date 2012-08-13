@@ -315,8 +315,10 @@ public class GestureSpeaker extends Activity {
                     	mData.setText("Movement number: "+ mMsggotNo+"\nGesture "+msg.arg1);
                     	updateflag=0;
                     	//send the click message.
-                    	if(msg.arg1==MessageController.NClASSES)
+                    	if(msg.arg1==MessageController.NClASSES){
+                    		mData.setText("Movement number: "+ mMsggotNo+"\n Gesture Ingnored");
                     		updateflag=1;
+                    	}
                     	else
                     		listView.performItemClick(listView, msg.arg1-1,listView.getItemIdAtPosition(msg.arg1-1));
                     	mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
@@ -330,6 +332,12 @@ public class GestureSpeaker extends Activity {
             case MESSAGE_TOAST:
                 Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
                                Toast.LENGTH_SHORT).show();
+                if(msg.getData().getString(TOAST).contains("lost")){
+                	updateflag=2;
+                	mCommandService.setFlag(false);
+            		mMsgclr.setCalibration(false);
+        			mPass.setText("Initialize");
+                }
                 break;
             }
         }
