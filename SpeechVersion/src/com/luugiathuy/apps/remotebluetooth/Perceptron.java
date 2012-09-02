@@ -11,10 +11,10 @@ public class Perceptron
         int _NDimensions;
         double _Eta;
         double[][] _WeightMatrix;
-        ArrayList<double[]> mReference=new ArrayList<double[]>(); 
         private final double Nomal=0.5;
-
-        Queue<InputAndOutput> _PerceptronPoints = new LinkedList<InputAndOutput>();
+        
+        Queue<InputAndOutput> _PerceptronPoints;
+        
         static final int POINTS_Q_MAX = 100;
 
         double _MaxValue =  -999999999;
@@ -29,6 +29,7 @@ public class Perceptron
             _NDimensions = NDimensions;
             _WeightMatrix = initial_w;
             _Eta = eta;
+            _PerceptronPoints=mPM.mProfile.getPerceptropoints();
         }
 
         public Perceptron(int Nclasses, int NDimensions, double[][] initial_w)
@@ -37,6 +38,7 @@ public class Perceptron
             _NDimensions = NDimensions;
             _WeightMatrix = initial_w;
             _Eta = Nomal;
+            _PerceptronPoints=mPM.mProfile.getPerceptropoints();
         }
 
         public Perceptron(int Nclasses, int NDimensions)
@@ -51,10 +53,18 @@ public class Perceptron
             }
             */
             _WeightMatrix=mPM.mProfile.getWeight();
+            _PerceptronPoints=mPM.mProfile.getPerceptropoints();
             _Eta =Nomal;
         }
        
-        public void UpdatePerceptron(double[] inputpoint,int label, double mTime)
+        /**
+         * Add time so that we can use time as one of the reference to compare with prediction.
+         * qiao 25,August,2012
+         * @param inputpoint
+         * @param label
+         * @param mTime
+         */
+        public void UpdatePerceptron(double[] inputpoint,int label, double[] mTime)
         {
             //double[] localinputpoint = inputpoint;
             double[] labelmatrix = new double[_NClasses];
@@ -77,7 +87,8 @@ public class Perceptron
             System.out.println();
             
             if(label >=0){
-            	InputAndOutput localinputpoint = new InputAndOutput(inputpoint, labelmatrix);
+            	//put mTime into our InputOutput...
+            	InputAndOutput localinputpoint = new InputAndOutput(inputpoint, labelmatrix,mTime);
                 _PerceptronPoints.add(localinputpoint);
             }
             
@@ -144,7 +155,27 @@ public class Perceptron
         }
         
         
-        public int Predict(double[] inputpoint)
+        public int Predict(double[] inputpoint,double[] _mSize)
+        {
+        	double[] classweights=levelweights( inputpoint);
+        	double[] algorithm_labelling=winner_takes_all(weight_win(classweights));
+            //double[] algorithm_labelling = winner_takes_all(inputpoint);
+            
+            for (int i = 0; i < _NClasses; i++)
+            	System.out.println(algorithm_labelling[i] + " ");
+            System.out.println();
+            int label = -1;
+            for (int i = 0; i < _NClasses; i++)
+                if (algorithm_labelling[i] == 1)
+                    label = i;
+            
+            //here we verify our prediction
+            InputAndOutput newinput =new InputAndOutput(inputpoint,algorithm_labelling,_mSize);
+            if(!Verify(newinput._Refer,label))
+            	label =10;
+            return label;
+        }
+        public int Predict(double[] inputpoint )
         {
         	double[] classweights=levelweights( inputpoint);
         	double[] algorithm_labelling=winner_takes_all(weight_win(classweights));
@@ -160,26 +191,30 @@ public class Perceptron
             return label;
         }
         
-        public int Predict(double[] inputpoint,double time)
-        {
-        	double[] classweights=levelweights( inputpoint);
-        	double[] algorithm_labelling=winner_takes_all(weight_win(classweights));
-            //double[] algorithm_labelling = winner_takes_all(inputpoint);
-            for (int i = 0; i < _NClasses; i++)
-            	System.out.println(algorithm_labelling[i] + " ");
-            System.out.println();
-            int label = -1;
-            for (int i = 0; i < _NClasses; i++)
-                if (algorithm_labelling[i] == 1)
-                    label = i;
-            Verify(inputpoint,time,label);
-            return label;
+        /**
+         * verify-- If incorrect rerun false;....
+         * @param inputpoint
+         * @param label
+         * @return
+         */
+        public boolean Verify(double[] inputpoint,int label){
+        	int erro =0;
+        	for(InputAndOutput input : _PerceptronPoints){
+            	if (label ==input.getindex()){
+            		//  newpoint.refer -- input_point
+            		if (input.Compare(inputpoint)){
+            			erro=0;
+            			break;
+            		}
+            		else
+            			erro=1;
+            	}
+            }
+            if (erro == 1)
+            	return false;
+        	return true;
         }
         
-        public boolean Verify(double[] inputpoint,double time,int label){
-        	return true;
-        	
-        }
         
         private double[] winner_takes_all(double[] currentinputpoint)
         {
@@ -444,6 +479,7 @@ public class Perceptron
             	
             	class_difference[i] =0;
             	if (i == trueindex)
+            		// initially 10
             		class_difference[i]=10;
             	else if(i == predictindex)
             		class_difference[i]=-10;

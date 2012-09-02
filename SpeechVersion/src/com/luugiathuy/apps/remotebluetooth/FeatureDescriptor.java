@@ -6,10 +6,10 @@ import java.util.LinkedList;
   public  class FeatureDescriptor
     {
         double[] _featurevector;
-        double size=0;
+        double[] size=new double [2];
         public FeatureDescriptor(LinkedList<Double[]> RawGestureData_raw)
         {
-            double[] featurevector = new double[28];
+            double[] featurevector = new double[31];
 
             double[] mean = new double[6];
             double[] variance = new double[6];
@@ -18,10 +18,19 @@ import java.util.LinkedList;
             double[] ai = new double[2];
             double[] vi = new double[2];
             double[] zerocrossingrate = new double[3];
-            double[] sum={0,0,0,0,0,0};
+            //potential new feature.
+            double [] gyro_peak=new double [3];
+            double [] acc_peak=new double [3];
+            double [] peak=new double [7];
             LinkedList<Double[]> RawGestureData=(LinkedList<Double[]>) RawGestureData_raw.clone();
-            	
-            for (int i = 0; i < 6; i++)
+            
+            // for matrix N_axis*N_...
+            int N_ = RawGestureData.size();
+            int N_axis = 6;
+            double [][] sum = new double[N_axis][N_];
+            double [] accsum = new double [N_];
+            
+            for(int i = 0; i < 6; i++)
             {
                 mean[i] = 0;
                 variance[i] = 0;
@@ -36,28 +45,31 @@ import java.util.LinkedList;
                     zerocrossingrate[i] = 0;
             }
             
-            /*
+            /**
              *  Change gyroscope data from raw to summation.
              *  Agu 24, 2012 qiao
              */
+	          //N is length of gesture
+	          //i is the current gyroscope axis
+          
+            //clear to zero
+            for (int i=0;i<N_axis;i++)
+                sum[i][0]=0;
+            //loop to get my sum gyroscope data.
             
-            for  (Double[] point : RawGestureData){
-          /*  	point[3]+=gyrosum[0];
-            	gyrosum[0] =point[3];
-            	
-            	point[4]+=gyrosum[1];
-            	gyrosum[1] =point[4];
-            	
-            	point[5]+=gyrosum[2];
-            	gyrosum[2] =point[5];
-           */ 	
-            	for (int i = 3; i < 6; i++)
-                {
-            		point[i]+= sum[i];
-                	sum[i] =point[i];
-                }
+            for (int t=1;t<N_;t++){
+            	for (int j=0 ;j<N_axis;j++){
+            		sum[j][t]=sum[j][t-1]+RawGestureData.get(t)[j]*10;
+            		if (j>=3)
+            			//gyroscope we can change the cave to summation.
+            			RawGestureData.get(t)[j]=sum[j][t];
+            	}
+            	accsum[t]=Math.pow(RawGestureData.get(t)[0], 2)+Math.pow(RawGestureData.get(t)[1], 2)+Math.pow(RawGestureData.get(t)[2], 2)-100;
             }
-            
+          //get the first peak value. it's the critical point to get the direction also.
+            // 0-2 for acc 2-6 for gyro.
+            peak=cal_peak(N_,N_axis,sum,accsum);
+
             for  (Double[] point : RawGestureData)
             {
                 double accelpow = Math.sqrt(Math.pow(point[0], 2) + Math.pow(point[1], 2) + Math.pow(point[2], 2));
@@ -111,8 +123,15 @@ import java.util.LinkedList;
                 featurevector[24 + i] = ai[i];
                 featurevector[26 + i] = vi[i];
             }
+            //new features
+            for(int i=0;i<3;i++)
+            {
+            	//featurevector[28 + i]=gyro_peak[i];
+            	 featurevector[28 + i]=peak[i+3]*Math.abs(peak[i+3]);
+            }
             _featurevector = featurevector;
-            size=RawGestureData_raw.size();
+            size[0]=RawGestureData_raw.size();
+            size[1]=peak[6];
         }
         
         public double[] getFeaturevector()
@@ -120,10 +139,44 @@ import java.util.LinkedList;
                 return _featurevector;
             
         }
-        public double getTime()
+        public double [] getTime()
         {
                 return size;
-            
+        }
+        public double [] cal_peak(int N,int axis, double [][] sum, double [] accsum){
+        	
+        	int [] peak_flag=new int [6];
+        	double[] peak= new double[7];
+        	for (int t=0;t<N;t++){
+            	for (int j=3;j<axis;j++){
+            		if (peak[j] > Math.abs(sum[j][t])&& peak_flag[j]==0 ){
+            			peak[j]=Math.abs(sum[j][t]);
+            			peak_flag[j]=t;
+            		}
+            		else 
+            			peak[j]=Math.abs(sum[j][t]);
+            	}
+            	//flags are zero at the same time
+            	if ( peak_flag[3]>0 &&peak_flag[4]>0&&peak_flag[5]>0 ){
+            		break;
+            	}
+            }
+        	//compare the flag points to get the critical point. max peak value is the critical point.
+        	int max=3;
+        	// get highest value index;
+        	for (int k=4;k<6;k++){
+        		if (peak[max]<peak[k]){
+        			max=k;
+        		}
+        	}
+        	int flag =peak_flag[max];
+        	
+        	//get peak value from the point flag
+        	for (int k=0;k<axis;k++){
+        		peak[k]= sum[k][flag];
+        	}
+        	peak[6]=accsum[flag];
+        	return peak;
         }
     }
 

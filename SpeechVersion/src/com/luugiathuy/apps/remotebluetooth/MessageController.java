@@ -48,13 +48,13 @@ public  class MessageController
      static Perceptron p1;
      static int mylabel;
      static double[] _GlobalFeatureVector;
-     static double _GlobalFeatureVectorTime;
+     static double [] _GlobalFeatureVectorTime;
      static boolean _Classification_done;
      static  RawDebug mRawDebugger;
      
      // perceptron matrix parameter.
      static int NClASSES=11;
-     static int NDIMENSIONS=28;
+     static int NDIMENSIONS=31;
 
     public static MessageController getinstant(){
     	if(mcontroller== null){
@@ -171,12 +171,13 @@ public  class MessageController
                         	
                         	FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
                             double[] featurevector = fd1.getFeaturevector();
-                        	int label = p1.Predict(featurevector);
-                        	double mTime=fd1.getTime();
+                            double [] mSize=fd1.getTime();
+                            int label = p1.Predict(featurevector,mSize);
+                            //int label = p1.Predict(featurevector );
                         	_Classification_done = true;
                             _GlobalFeatureVector = featurevector;
-                            _GlobalFeatureVectorTime=mTime; 
-                        	System.out.println("movement detected"+label);
+                            _GlobalFeatureVectorTime=mSize; 
+                        	System.out.println("movement detected "+label);
                         	mylabel=label;
                         	backflag=label+1;
                         	//every movement send data to debug

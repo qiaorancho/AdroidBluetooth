@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Queue;
 
 import android.content.Context;
 
@@ -24,7 +25,10 @@ public class Profile implements Serializable {
 	public String[] mString;
 	private int mSensitivity;
 	private int mDebug;
+	
+	//for perceptron. 
 	private double [][] mWeight;
+	private Queue<InputAndOutput> mPerceptronPoints ;
 	private LinkedList<String> mList=new LinkedList<String>();
 	public ArrayList<String> mSentence;
 	
@@ -47,6 +51,7 @@ public class Profile implements Serializable {
 		//Initialize with 10...
 		mValues =Initial_String(MessageController.NClASSES-1);
 		mString=mValues.clone();
+		mPerceptronPoints = new LinkedList<InputAndOutput>();
 	}
 	
 	public static String[] Initial_String(int input){
@@ -95,6 +100,10 @@ public class Profile implements Serializable {
 	
 	public double[][]  getWeight(){
 		return mWeight;
+	}
+	
+	public Queue<InputAndOutput>   getPerceptropoints(){
+		return mPerceptronPoints;
 	}
 	
 	public LinkedList<String>  getList(Context input){
@@ -230,7 +239,7 @@ public class Profile implements Serializable {
             for (int j = 0; j < MessageController.NDIMENSIONS; j++)
                 pro.mWeight[i][j] = 0;
         }
-		
+		pro.mPerceptronPoints.clear();
 	}
 	
 	public static void reset_profile(Context input,String name,Profile pro)

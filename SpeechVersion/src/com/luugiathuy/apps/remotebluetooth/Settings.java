@@ -70,7 +70,7 @@ public class Settings extends ListActivity {
 				else if (arg2==5){
 					mPM.reSet(mPM.mContext, mPM.mProfile.getName());
 					mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
-					mMsgclr.p1._PerceptronPoints.clear();
+					mMsgclr.p1._PerceptronPoints=mPM.mProfile.getPerceptropoints();
 					//reset initialization part.
 					Bundle extras1 = new Bundle();
     				Intent i = new Intent();

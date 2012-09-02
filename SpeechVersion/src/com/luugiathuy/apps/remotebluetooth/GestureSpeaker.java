@@ -437,6 +437,7 @@ public class GestureSpeaker extends Activity {
 	public void  updateView(){
 
 		mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
+		mMsgclr.p1._PerceptronPoints=mPM.mProfile.getPerceptropoints();
 		for(int i=0;i<MessageController.NClASSES-1;i++){
         	mString[i]=mPM.mProfile.mValues[i];
         }
