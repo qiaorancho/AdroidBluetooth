@@ -1,7 +1,9 @@
 package com.luugiathuy.apps.remotebluetooth;
 
+import java.io.Serializable;
 
-public class InputAndOutput
+
+public class InputAndOutput implements Serializable
 {
         double[] _InputPoint;
         double[] _AlgorithmLabel;

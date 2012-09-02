@@ -131,6 +131,7 @@ public class Profile implements Serializable {
 	public static void write_data_to_file(Context input,Profile pro)
 	{
 		String name =pro.getName();
+		System.out.println("write file "+name);
 		try { 
 			name.concat("data");
 	        FileOutputStream fOut = input.openFileOutput(name, Context.MODE_WORLD_READABLE); 
@@ -148,6 +149,7 @@ public class Profile implements Serializable {
 	public static Profile read_data_from_file(Context input, String name)
 	{
 		Profile pro= new Profile();
+		System.out.println("read file "+name);
 		try { 
 			name.concat("data");
 			FileInputStream fin = input.openFileInput(name);
