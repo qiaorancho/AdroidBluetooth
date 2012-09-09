@@ -9,7 +9,7 @@ import java.util.LinkedList;
         double[] size=new double [2];
         public FeatureDescriptor(LinkedList<Double[]> RawGestureData_raw)
         {
-            double[] featurevector = new double[31];
+            double[] featurevector = new double[34];
 
             double[] mean = new double[6];
             double[] variance = new double[6];
@@ -66,8 +66,9 @@ import java.util.LinkedList;
             	}
             	accsum[t]=Math.pow(RawGestureData.get(t)[0], 2)+Math.pow(RawGestureData.get(t)[1], 2)+Math.pow(RawGestureData.get(t)[2], 2)-100;
             }
-          //get the first peak value. it's the critical point to get the direction also.
-            // 0-2 for acc 2-6 for gyro.
+            
+            //	get  first peak value. it's the critical point to get the direction also.
+            // 	0-2 for acc 3-6 for gyro.
             peak=cal_peak(N_,N_axis,sum,accsum);
 
             for  (Double[] point : RawGestureData)
@@ -77,7 +78,6 @@ import java.util.LinkedList;
                 for (int i = 0; i < 6; i++)
                 {
                 	//here I change mean method
-                	//
                     mean[i] += point[i];
                     rms[i] += Math.pow(point[i], 2);
                 }
@@ -126,8 +126,12 @@ import java.util.LinkedList;
             //new features
             for(int i=0;i<3;i++)
             {
-            	//featurevector[28 + i]=gyro_peak[i];
-            	 featurevector[28 + i]=peak[i+3]*Math.abs(peak[i+3]);
+            	//get peak* abs(peak)
+            	 featurevector[28 + i]=peak[i]* Math.abs(peak[i]);
+            	 	//System.out.println("acce : "+featurevector[28 + i]);
+            	//featurevector[28 + i+3]=gyro_peak[i];
+            	 featurevector[28 + i+3]=peak[i+3]* Math.abs(peak[i+3]);
+            	 	//System.out.println("gyro : "+featurevector[31 + i]);
             }
             _featurevector = featurevector;
             size[0]=RawGestureData_raw.size();
@@ -139,10 +143,12 @@ import java.util.LinkedList;
                 return _featurevector;
             
         }
+        
         public double [] getTime()
         {
                 return size;
         }
+        
         public double [] cal_peak(int N,int axis, double [][] sum, double [] accsum){
         	
         	int [] peak_flag=new int [6];
@@ -161,6 +167,7 @@ import java.util.LinkedList;
             		break;
             	}
             }
+        	
         	//compare the flag points to get the critical point. max peak value is the critical point.
         	int max=3;
         	// get highest value index;
@@ -170,11 +177,25 @@ import java.util.LinkedList;
         		}
         	}
         	int flag =peak_flag[max];
+        	System.out.println("flag is :  "+flag);
         	
-        	//get peak value from the point flag
+        	//get flag time and 0 time difference of acce.
         	for (int k=0;k<axis;k++){
-        		peak[k]= sum[k][flag];
+        		if (k<3){
+        			//get flag time acce sum value.
+        			peak[k]= sum[k][flag];
+        			//get flag time acce value
+        			if (flag >0)
+            		peak[k]-= sum[k][flag-1];
+            		//get flag time and 1 time difference.
+        			//can't use 0 time because 0 time is 000
+            		peak[k]-=sum[k][1];
+            		System.out.println("acce differ :  "+peak[k]);
+        		}
+        		else
+        		peak[k]=sum[k][flag];
         	}
+        	
         	peak[6]=accsum[flag];
         	return peak;
         }

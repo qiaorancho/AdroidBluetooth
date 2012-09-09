@@ -8,7 +8,7 @@ public class InputAndOutput implements Serializable
         double[] _InputPoint;
         double[] _AlgorithmLabel;
         double[] _Size;
-        double[] _Refer= new double [5];
+        double[] _Refer= new double [8];
         
         public InputAndOutput(double[] inputpoint, double[] algorithm_labels)
         {
@@ -22,7 +22,6 @@ public class InputAndOutput implements Serializable
             _Size=_Size;
             Calculate_Refer(inputpoint, _Size);
         }
-        
         
         public double[] getinputpoint()
         {
@@ -54,9 +53,9 @@ public class InputAndOutput implements Serializable
         {
         	//first I will get the direction vector.
         	
-        	_Refer[0]=inputpoint[28];
-        	_Refer[1]=inputpoint[29];
-        	_Refer[2]=inputpoint[30];
+        	_Refer[5]=inputpoint[31];
+        	_Refer[6]=inputpoint[32];
+        	_Refer[7]=inputpoint[33];
         	
         	//time
         	_Refer[3]=size[0];
@@ -84,20 +83,20 @@ public class InputAndOutput implements Serializable
         	
         	
         	//angle
-        	double gyro_new_pow = Math.sqrt(Math.pow(newinput[0], 2) + Math.pow(newinput[1], 2) + Math.pow(newinput[2], 2));
-        	double gyro__Refer_pow = Math.sqrt(Math.pow(_Refer[0], 2) + Math.pow(_Refer[1], 2) + Math.pow(_Refer[2], 2));
+        	double gyro_new_pow = Math.sqrt(Math.pow(newinput[5], 2) + Math.pow(newinput[6], 2) + Math.pow(newinput[7], 2));
+        	double gyro__Refer_pow = Math.sqrt(Math.pow(_Refer[5], 2) + Math.pow(_Refer[6], 2) + Math.pow(_Refer[7], 2));
         	
         	//calculate the direction angle of movement here. cos ?= a.b/|a||b|
-        	double result= (newinput[0]*_Refer[0]+newinput[1]*_Refer[1]+newinput[2]*_Refer[2]) /(gyro_new_pow*gyro__Refer_pow );
-        	if (result < 0.95){
+        	double result= (newinput[5]*_Refer[5]+newinput[6]*_Refer[6]+newinput[7]*_Refer[7]) /(gyro_new_pow*gyro__Refer_pow );
+        	if (result < 0.85){
         		System.out.println("Angle erro... "+result);
-        		for (int i=0;i<3;i++){
+        		for (int i=5;i<8;i++){
             		System.out.println("new "+newinput[i]+ " refer"+_Refer[i]);
             	}
         		return false;
         	}
         	System.out.println("Angle...£º "+result);
-        	for (int i=0;i<3;i++){
+        	for (int i=5;i<8;i++){
         		System.out.println("new "+newinput[i]+ " refer"+_Refer[i]);
         	}
         	return true;

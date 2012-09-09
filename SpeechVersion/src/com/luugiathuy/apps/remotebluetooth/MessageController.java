@@ -28,21 +28,29 @@ public  class MessageController
      static Queue<Double> _gyrx_bias_queue;
      static Queue<Double> _gyry_bias_queue;
      static Queue<Double> _gyrz_bias_queue;
+     static Queue<Double> _acc_bias_queue;
+     
      static double _gyrx_bias;
      static double _gyry_bias;
      static double _gyrz_bias;
+     static double _acc_bias;
+     
      static double _gyrx_std;
      static double _gyry_std;
      static double _gyrz_std;
+     static double _acc_std;
+     
      static int QueueMaxSize = 150;
-     static double movementvariable = 0;
+     static double movementvariable_gyro = 0;
+     static double movementvariable_acce = 0;
      static LowpassFilter _l1;
 
      //variables for gestures
      static LinkedList<Double[]> _rawgesturedata;
      static boolean _hasgesturestarted;
      
-     static double _gesture_threshold[] =new double []{8,4,2,1,0.5};
+     static double _gesture_threshold_gyro[] =new double []{8,4,2,1,0.5};
+     static double _gesture_threshold_acce[] =new double []{2,1.5,1,0.8,0.6};
      static int datasetno[] =new int []{130,80,50,30,15};
      
      static Perceptron p1;
@@ -54,7 +62,7 @@ public  class MessageController
      
      // perceptron matrix parameter.
      static int NClASSES=11;
-     static int NDIMENSIONS=31;
+     static int NDIMENSIONS=34;
 
     public static MessageController getinstant(){
     	if(mcontroller== null){
@@ -71,11 +79,11 @@ public  class MessageController
     }
     
 	public  MessageController(){
-		
 	        _gyrx_bias_queue = new LinkedList <Double>();
 
 	        _gyry_bias_queue = new LinkedList <Double>();
 	        _gyrz_bias_queue = new LinkedList <Double>();
+	        _acc_bias_queue = new LinkedList <Double>();
 
             p1 = new Perceptron(NClASSES, NDIMENSIONS);
 
@@ -133,25 +141,37 @@ public  class MessageController
                         _gyry_bias_queue.add(datapoint.GyrY());
                     if (_gyrz_bias_queue.size() < QueueMaxSize)
                         _gyrz_bias_queue.add(datapoint.GyrZ());
+                    _acc_bias_queue.add(
+                    		Math.sqrt(Math.pow(datapoint.AccX(),2)+Math.pow(datapoint.AccY(),2)+Math.pow(datapoint.AccZ(),2))		
+                    		);
                     if (_gyrx_bias_queue.size() == QueueMaxSize)
                     {
                         estimate_bias_value();
                         estimate_std_value();
                         Calibrationdone();
-
+                        
+                        //calibrations done send back -1
                         backflag=-1;
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
+                        System.out.println("Bias Values:"+ _acc_bias);
                     }
                 }
                 else
                 {
-                    movementvariable = Math.pow(datapoint.GyrX() - _gyrx_bias, 2) +
+                    movementvariable_gyro = Math.pow(datapoint.GyrX() - _gyrx_bias, 2) +
                         Math.pow(datapoint.GyrY() - _gyry_bias, 2) + Math.pow(datapoint.GyrZ() - _gyrz_bias, 2);
                     
+                    movementvariable_acce=Math.sqrt(Math.pow(datapoint.AccX(),2)+Math.pow(datapoint.AccY(),2)+Math.pow(datapoint.AccZ(),2))-_acc_bias;
                     
-                    movementvariable = _l1.filtervalue(movementvariable,mIndex-1);
-                    if (movementvariable > _gesture_threshold[mIndex-1])
+                    //System.out.println("check acc : "+ datapoint.AccX()+";"+ datapoint.AccY()+";"+ datapoint.AccZ()+";" );
+                    //if(Math.abs(movementvariable_acce )>0.5)
+                    //System.out.println("check acc : "+ movementvariable_acce );
+                    
+                    movementvariable_acce=_l1.filtervalue(movementvariable_acce,mIndex-1);
+                    movementvariable_gyro = _l1.filtervalue(movementvariable_gyro,mIndex-1);
+                    
+                    if (movementvariable_acce > _gesture_threshold_acce[mIndex-1] ||movementvariable_gyro > _gesture_threshold_gyro[mIndex-1] )
                     {
                         Double[] gesturepoint = new Double[6];
                         gesturepoint[0] = datapoint.AccX(); 	
@@ -160,9 +180,11 @@ public  class MessageController
                         gesturepoint[3] = datapoint.GyrX() - _gyrx_bias;
                         gesturepoint[4] = datapoint.GyrY() - _gyry_bias;
                         gesturepoint[5] = datapoint.GyrZ() - _gyrz_bias;
-                                      
+                        
+                         
                         _rawgesturedata.add(gesturepoint);
                     }
+                    
                     else
                     {
                         if (_rawgesturedata.size()> datasetno[mIndex-1])     //has to be at least 10 seconds
@@ -172,6 +194,8 @@ public  class MessageController
                         	FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
                             double[] featurevector = fd1.getFeaturevector();
                             double [] mSize=fd1.getTime();
+                            
+                             
                             int label = p1.Predict(featurevector,mSize);
                             //int label = p1.Predict(featurevector );
                         	_Classification_done = true;
@@ -179,11 +203,13 @@ public  class MessageController
                             _GlobalFeatureVectorTime=mSize; 
                         	System.out.println("movement detected "+label);
                         	mylabel=label;
+                        	
                         	backflag=label+1;
-                        	//every movement send data to debug
+                        	 
+                            
+                            //every movement send data to debug
                         //	recordData();
                         }
-                        
                         //clear the data array after stop.
                         _rawgesturedata.clear();
                     }
@@ -210,9 +236,15 @@ public  class MessageController
         {
             _gyrz_bias += gyrzvalue;
         }
+        for (double accvalue : _acc_bias_queue)
+        {
+            _acc_bias += accvalue;
+        }
+        
         _gyrx_bias /= _gyrx_bias_queue.size();
         _gyry_bias /= _gyry_bias_queue.size();
         _gyrz_bias /= _gyrz_bias_queue.size();
+        _acc_bias /= _acc_bias_queue.size();
     }
     
     static void estimate_std_value()
@@ -244,6 +276,7 @@ public  class MessageController
     	_gyrx_bias_queue.clear();
     	_gyry_bias_queue.clear();
     	_gyrz_bias_queue.clear();
+    	_acc_bias_queue.clear();
     }
     
     // Update the Perceptron Weight Matrix.

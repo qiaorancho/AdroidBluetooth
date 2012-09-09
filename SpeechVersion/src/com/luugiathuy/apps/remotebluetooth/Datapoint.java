@@ -13,9 +13,9 @@ public class Datapoint
 
             String[] split_message = message.split(",");
 
-           myDebug[0]= _accx = Double.valueOf(split_message[1]);
-           myDebug[1]= _accy = Double.valueOf(split_message[2]);
-           myDebug[2]= _accz = Double.valueOf(split_message[3]);
+           myDebug[0]= _accx = Double.valueOf(split_message[1])/25.6;
+           myDebug[1]= _accy = Double.valueOf(split_message[2])/25.6;
+           myDebug[2]= _accz = Double.valueOf(split_message[3])/25.6+1;
            myDebug[3]= _gyrx = Gyro_Scaled(Double.valueOf(split_message[4]));
            myDebug[4]= _gyry = Gyro_Scaled(Double.valueOf(split_message[5]));
            myDebug[5]= _gyrz = Gyro_Scaled(Double.valueOf(split_message[6]));
