@@ -53,6 +53,13 @@ public class InputAndOutput implements Serializable
         {
         	//first I will get the direction vector.
         	
+        	//accelerometer
+        	_Refer[0]=inputpoint[28];
+        	_Refer[1]=inputpoint[29];
+        	_Refer[2]=inputpoint[30];
+        	
+        	
+        	//gyro
         	_Refer[5]=inputpoint[31];
         	_Refer[6]=inputpoint[32];
         	_Refer[7]=inputpoint[33];
@@ -77,28 +84,36 @@ public class InputAndOutput implements Serializable
         	}
         	System.out.println("Time  newinput: "+newinput[3]+"\nTime  refer: "+_Refer[3]);
         	
-        	
-        	
         	System.out.println("Acc  newinput: "+newinput[4]+"\nAcc  refer: "+_Refer[4]);
         	
         	
         	//angle
-        	double gyro_new_pow = Math.sqrt(Math.pow(newinput[5], 2) + Math.pow(newinput[6], 2) + Math.pow(newinput[7], 2));
-        	double gyro__Refer_pow = Math.sqrt(Math.pow(_Refer[5], 2) + Math.pow(_Refer[6], 2) + Math.pow(_Refer[7], 2));
+        	double result = GetAngle(newinput,_Refer,5);
+        	double accresult=GetAngle(newinput,_Refer,0);
+        	System.out.println("Acc angle-- "+accresult);
         	
-        	//calculate the direction angle of movement here. cos ?= a.b/|a||b|
-        	double result= (newinput[5]*_Refer[5]+newinput[6]*_Refer[6]+newinput[7]*_Refer[7]) /(gyro_new_pow*gyro__Refer_pow );
-        	if (result < 0.85){
-        		System.out.println("Angle erro... "+result);
+        	if (result < 0.85 && accresult <0.9){
+        		System.out.println("Angle erro... gyro_angle "+result+"  acc_angle  "+accresult);
         		for (int i=5;i<8;i++){
-            		System.out.println("new "+newinput[i]+ " refer"+_Refer[i]);
+            		System.out.println("new gyro"+newinput[i]+ " refer gyro "+_Refer[i]);
+            	}
+        		
+        		for (int i=0;i<3;i++){
+            		System.out.println("new acc "+newinput[i]+ " refer acc "+_Refer[i]);
             	}
         		return false;
         	}
         	System.out.println("Angle...£º "+result);
-        	for (int i=5;i<8;i++){
-        		System.out.println("new "+newinput[i]+ " refer"+_Refer[i]);
-        	}
+        	System.out.println("gyro_angle "+result+"  acc_angle  "+accresult);
         	return true;
         }
+        
+       public double GetAngle(double[] _new, double[] _refer, int index){
+    	   	double gyro_new_pow = Math.sqrt(Math.pow(_new[index], 2) + Math.pow(_new[index+1], 2) + Math.pow(_new[index+2], 2));
+       		double gyro__refer_pow = Math.sqrt(Math.pow(_refer[index], 2) + Math.pow(_refer[index+1], 2) + Math.pow(_refer[index+2], 2));
+       	
+       		//calculate the direction angle of movement here. cos ?= a.b/|a||b|
+       		double result= (_new[index]*_refer[index]+_new[index+1]*_refer[index+1]+_new[index+2]*_refer[index+2]) /(gyro_new_pow*gyro__refer_pow );
+       		return result;
+       }
 }

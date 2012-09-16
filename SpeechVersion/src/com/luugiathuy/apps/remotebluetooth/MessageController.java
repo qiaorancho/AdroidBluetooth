@@ -190,11 +190,10 @@ public  class MessageController
                         if (_rawgesturedata.size()> datasetno[mIndex-1])     //has to be at least 10 seconds
                         {
                         	System.out.println("totall data"+_rawgesturedata.size());
-                        	
+                        	 
                         	FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
                             double[] featurevector = fd1.getFeaturevector();
                             double [] mSize=fd1.getTime();
-                            
                              
                             int label = p1.Predict(featurevector,mSize);
                             //int label = p1.Predict(featurevector );
@@ -206,8 +205,7 @@ public  class MessageController
                         	
                         	backflag=label+1;
                         	 
-                            
-                            //every movement send data to debug
+                        //every movement send data to debug
                         //	recordData();
                         }
                         //clear the data array after stop.

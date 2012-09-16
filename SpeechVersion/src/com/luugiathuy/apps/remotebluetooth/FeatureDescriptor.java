@@ -7,10 +7,14 @@ import java.util.LinkedList;
     {
         double[] _featurevector;
         double[] size=new double [2];
+        
+        private LinkedList<Double[]>  rawdata;
         public FeatureDescriptor(LinkedList<Double[]> RawGestureData_raw)
         {
-            double[] featurevector = new double[34];
-
+        	rawdata =RawGestureData_raw;
+        	double[] featurevector = new double[34];
+            
+            
             double[] mean = new double[6];
             double[] variance = new double[6];
             double[] movementintensity = new double[6];
@@ -59,12 +63,12 @@ import java.util.LinkedList;
             
             for (int t=1;t<N_;t++){
             	for (int j=0 ;j<N_axis;j++){
-            		sum[j][t]=sum[j][t-1]+RawGestureData.get(t)[j]*10;
+            		sum[j][t]=sum[j][t-1]+RawGestureData.get(t)[j];
             		if (j>=3)
             			//gyroscope we can change the cave to summation.
             			RawGestureData.get(t)[j]=sum[j][t];
             	}
-            	accsum[t]=Math.pow(RawGestureData.get(t)[0], 2)+Math.pow(RawGestureData.get(t)[1], 2)+Math.pow(RawGestureData.get(t)[2], 2)-100;
+            	accsum[t]=Math.sqrt( Math.pow(RawGestureData.get(t)[0], 2)+Math.pow(RawGestureData.get(t)[1], 2)+Math.pow(RawGestureData.get(t)[2], 2) )-MessageController._acc_bias;
             }
             
             //	get  first peak value. it's the critical point to get the direction also.
@@ -150,7 +154,6 @@ import java.util.LinkedList;
         }
         
         public double [] cal_peak(int N,int axis, double [][] sum, double [] accsum){
-        	
         	int [] peak_flag=new int [6];
         	double[] peak= new double[7];
         	for (int t=0;t<N;t++){
@@ -179,9 +182,61 @@ import java.util.LinkedList;
         	int flag =peak_flag[max];
         	System.out.println("flag is :  "+flag);
         	
+        	//***************Second layer***********************
+        	
+        	double[] accdata =new double [rawdata.size()];
+        	int i=0;
+        	
+        	//accflag
+        	int accflag;
+        	accflag=flag;
+       	 	
+        	for  (Double[] point : rawdata)
+            {
+       		 double acc=Math.sqrt(Math.pow(point[0],2)+Math.pow(point[1],2)+Math.pow(point[2],2))-MessageController._acc_bias;
+       		 accdata[i]=acc;
+       		 i++;
+            }
+        	
+        	//get accelerometer flag used for pinpoint the return point of the movement
+       	 	for(int j=flag;j<rawdata.size()&&j<flag+3;j++){
+       	 		for(int k=0;k<10;k++){
+       	 			if( accdata[j]< accdata[j+k] ){
+       	 				accflag=j+k;
+       	 				System.out.println("It's here..change "+ k);
+       	 				break;
+       	 			}
+       	 		}
+       	 	}
+       	 	
+       	 	//get acc peak point
+       	 	for(int j=accflag;j<rawdata.size()-1;j++){
+       	 		//if it's peak then
+       	 		if( accdata[j]> accdata[j+1] ){
+       	 			accflag=j;
+       	 			break;
+       	 		}
+       	 		// if error then
+       	 		if(j==rawdata.size()-2){
+       	 		accflag=rawdata.size()/2;
+       	 		break;
+       	 		}
+       	 	}
+       	 	//put accflag to flag
+       	 	flag=accflag;
+       	 	
+       	 	
+       	 	System.out.println("Result flag...."+accflag);
+       	 	
+       	 	//**************************************************
+       	 	
         	//get flag time and 0 time difference of acce.
         	for (int k=0;k<axis;k++){
         		if (k<3){
+        			peak[k]=rawdata.get(flag)[k]-rawdata.get(0)[k];
+        			//add more weight to multipul 10
+        			peak[k]*=10;
+        			/*
         			//get flag time acce sum value.
         			peak[k]= sum[k][flag];
         			//get flag time acce value
@@ -190,14 +245,13 @@ import java.util.LinkedList;
             		//get flag time and 1 time difference.
         			//can't use 0 time because 0 time is 000
             		peak[k]-=sum[k][1];
+            		*/
             		System.out.println("acce differ :  "+peak[k]);
         		}
         		else
-        		peak[k]=sum[k][flag];
+        		peak[k]=sum[k][flag]*10; //add more weight to multipul 10
         	}
-        	
-        	peak[6]=accsum[flag];
+        	peak[6]=accsum[flag]*10;
         	return peak;
         }
     }
-
