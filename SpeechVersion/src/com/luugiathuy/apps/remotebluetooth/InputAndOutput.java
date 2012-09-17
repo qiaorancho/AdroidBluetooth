@@ -92,19 +92,27 @@ public class InputAndOutput implements Serializable
         	double accresult=GetAngle(newinput,_Refer,0);
         	System.out.println("Acc angle-- "+accresult);
         	
-        	if (result < 0.85 && accresult <0.9){
-        		System.out.println("Angle erro... gyro_angle "+result+"  acc_angle  "+accresult);
-        		for (int i=5;i<8;i++){
-            		System.out.println("new gyro"+newinput[i]+ " refer gyro "+_Refer[i]);
-            	}
-        		
-        		for (int i=0;i<3;i++){
-            		System.out.println("new acc "+newinput[i]+ " refer acc "+_Refer[i]);
-            	}
-        		return false;
+        	//first check angle of gyro 
+        	if (result < 0.85 ){
+        		//second check acc angle and have to have gyro base 0.2
+        		if (accresult <0.9 || result <0.2)
+        		{
+        			System.out.println("Angle erro... gyro_angle "+result+"  acc_angle  "+accresult);
+            		for (int i=5;i<8;i++){
+                		System.out.println("new gyro"+newinput[i]+ " refer gyro "+_Refer[i]);
+                	}
+            		for (int i=0;i<3;i++){
+                		System.out.println("new acc "+newinput[i]+ " refer acc "+_Refer[i]);
+                	}
+            		return false;
+        		}
         	}
         	System.out.println("Angle...£º "+result);
         	System.out.println("gyro_angle "+result+"  acc_angle  "+accresult);
+        	System.out.println("Angle of acc ");
+        	for (int i=0;i<3;i++){
+        		System.out.println("new acc "+newinput[i]+ " refer acc "+_Refer[i]);
+        	}
         	return true;
         }
         

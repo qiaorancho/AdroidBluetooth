@@ -366,6 +366,10 @@ public class Perceptron
         			else if(data.TargetValue<0&&data.MaxValue>0){
         				ration=data.MaxValue/(-data.TargetValue);
         				
+        				//make sure it's fast.
+        				if (ration <1)
+        					ration=1/ration;
+        				
         				//ration =ration +10
         				ration +=10;
         				if (ration>20)
