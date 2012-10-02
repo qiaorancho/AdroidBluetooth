@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+	 
+
+
+ <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+
+     
+      <LinearLayout
+         xmlns:android="http://schemas.android.com/apk/res/android"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:background="@color/Green"
+         
+         android:orientation="horizontal"
+         android:paddingLeft="7dp"
+         android:paddingRight="15dp" >
+		
+		<TextView
+        android:id="@+id/mTitle"
+        
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         />
+		
+		<TextView
+        android:id="@+id/mScore"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+         />
+		
+     </LinearLayout>
+     
+     <LinearLayout
+         
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:background="@color/DimGray"
+         
+         android:orientation="horizontal"
+         android:paddingLeft="7dp"
+         android:paddingRight="15dp" >
+		
+		<TextView
+        android:id="@+id/mTitle1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         />
+		
+		<TextView
+        android:id="@+id/mScore1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+         />
+		
+     </LinearLayout>
+     
+   <LinearLayout  
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="5dp"
+    android:orientation="horizontal" >
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Button" />
+
+ </LinearLayout>
+
+       <RelativeLayout
+           android:layout_width="fill_parent"
+		   android:layout_height="wrap_content"
+		   android:orientation="vertical" >
+
+
+		      <GridView
+		          android:id="@+id/grid_view"
+		          android:layout_width="fill_parent"
+		          android:layout_height="wrap_content"
+		          android:columnWidth="90dp"
+		          android:gravity="center"
+		          android:horizontalSpacing="10dp"
+		          android:numColumns="4"
+		          android:stretchMode="columnWidth"
+		          android:verticalSpacing="10dp" 
+		          android:layout_alignParentTop="true"
+		          android:layout_above="@+id/TextView01"
+		          >
+
+		      </GridView>
+
+		         <TextView
+		             android:id="@+id/TextView01"
+		             android:layout_width="fill_parent"
+		             android:layout_height="wrap_content"
+		             android:layout_alignParentBottom="true" />
+
+
+      </RelativeLayout>
+        
+ </LinearLayout>
+
+
+

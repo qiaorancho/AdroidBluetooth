@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+     <LinearLayout
+         xmlns:android="http://schemas.android.com/apk/res/android"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:background="@color/DimGray"
+         android:orientation="horizontal"
+         android:paddingLeft="5dp"
+         android:paddingRight="5dp" >
+		
+		<TextView
+        android:id="@+id/mProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_"
+         />
+		
+		<TextView
+        android:id="@+id/mIndex"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+         />
+		
+		
+     </LinearLayout>
+    
+    
+	<TextView
+            android:id="@+id/DataTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	<RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" >
+			
+
+		    <Button
+		    android:id="@+id/bPass"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentBottom="true"
+		    android:text="@string/pass_"/>
+
+		    <Button
+		        android:id="@+id/bGarbage"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentBottom="true"
+		        android:layout_toRightOf="@id/bPass"
+		        android:text="@string/garbage_" />
+
+		<ListView
+		    android:id="@+id/listView1"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_above="@id/bGarbage" >
+
+		</ListView>
+		
+	</RelativeLayout>
+
+	
+   
+</LinearLayout>
