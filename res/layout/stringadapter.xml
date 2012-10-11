@@ -8,9 +8,7 @@
     android:textAppearance="?android:attr/textAppearanceLarge"
     android:padding="15dp"
 	android:gravity="center"
-	android:background="@color/Green"	
     >
-    
 
 </TextView>
-    
+

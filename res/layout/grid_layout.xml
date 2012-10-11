@@ -74,6 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColor="@color/Blue"
         android:text="Button" />
 
     <Button
@@ -81,6 +82,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColor="@color/Blue"
         android:text="Button" />
 
     <Button
@@ -88,6 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColor="@color/Blue"
         android:text="Button" />
 
     <Button
@@ -95,6 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColor="@color/Blue"
         android:text="Button" />
 
  </LinearLayout>
@@ -117,6 +121,7 @@
 		          android:verticalSpacing="10dp" 
 		          android:layout_alignParentTop="true"
 		          android:layout_above="@+id/TextView01"
+		          
 		          >
 
 		      </GridView>

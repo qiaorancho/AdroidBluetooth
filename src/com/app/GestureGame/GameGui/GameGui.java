@@ -1,5 +1,4 @@
 package com.app.GestureGame.GameGui;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,11 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -19,10 +20,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.GestureGame.R;
+import com.app.GestureGame.R.color;
 
 public class GameGui extends Activity implements
 AdapterView.OnItemClickListener{
@@ -60,6 +63,7 @@ AdapterView.OnItemClickListener{
 	        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 	                                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	        setContentView(R.layout.grid_layout);
+	        
 	        //is in front
 	        Isinfront=true;
 	        
@@ -100,25 +104,47 @@ AdapterView.OnItemClickListener{
 		    mScore.setText(mRightScore+counter); 
 		     //define my grid view
 		    gridView= (GridView) findViewById(R.id.grid_view);
-		 
-	        
 		   
 		    // Array Adapter
 			ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,
-					R.layout.stringadapter, mynumbers);
+					R.layout.stringadapter, mynumbers){
+		
+				        @Override
+				        public View getView(int position, View convertView, ViewGroup parent) { 
+
+				            View grid;
+				            if(convertView==null){
+				                grid = new View(getApplicationContext());
+				                LayoutInflater inflater=getLayoutInflater();
+				                grid=inflater.inflate(R.layout.stringadapter, parent, false);
+				            }else{
+				                grid = (View)convertView;
+				            }
+
+				            TextView tv = (TextView)grid.findViewById(R.id.list_item);
+				            if(position%5==0){
+				            	tv.setBackgroundResource(color.Yellow);
+				            	tv.setTextColor(color.Black);
+				            }
+				            else{
+				            	tv.setBackgroundResource(color.LightGrey);
+				            	tv.setTextColor(color.Black);
+				            } 
+				            tv.setText(String.valueOf(mynumbers[position]));
+				            return grid;
+				        }
+
+				    };
 		    gridView.setAdapter(adapter);
 		    gridView.setOnItemClickListener((OnItemClickListener) this);
-		    } 
-	 
+	 		} 
 	 
 	 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		}
 	 
-	 
-	 
 	 private void ButtonRefresh(){
     	 for (int i=0;i<4;i++){
-    		 mBt[i].setText("Off");
+    		 mBt[i].setText("OFF");
     		 mbtIndex[i]=0;
     	 }
 	 }
@@ -153,7 +179,6 @@ AdapterView.OnItemClickListener{
 	        	counter=0;
 	        	gridView.invalidateViews();
 	            return true;
-	       
 	        }
 	        return false;
 	    }
@@ -188,7 +213,6 @@ AdapterView.OnItemClickListener{
 		 super.onDestroy();
 	 }
 	 
-	 
 	 private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
@@ -209,11 +233,11 @@ AdapterView.OnItemClickListener{
 		        	    	if(input>= 0 && input< 4){
 		        	    		mynumbers[on+4*input]++;
 		        	    		counter++;
-		        	    		Toast.makeText(GameGui.this, String.valueOf(input), Toast.LENGTH_SHORT).show();
+		        	    		Toast.makeText(GameGui.this, String.valueOf(input+1), Toast.LENGTH_SHORT).show();
 		        	    	}
 		        	    	else{
 		        	    		// Vibrate the mobile phone
-		        	    		Toast.makeText(GameGui.this, String.valueOf(input), Toast.LENGTH_SHORT).show();
+		        	    		Toast.makeText(GameGui.this, String.valueOf(input+1), Toast.LENGTH_SHORT).show();
 		        	    		Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 		        	    		vibrator.vibrate(2000);
 		        	    	}
