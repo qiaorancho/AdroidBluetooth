@@ -13,9 +13,14 @@ import com.app.GestureGame.Profile.ProfileManager;
 import android.os.Environment;
 
 public class RawDebug {
-	   
+	private ProfileManager mPM = ProfileManager.getinstant();
+	Double [] myData;
+    public int endcount;
+    private int dirFlag;
+	
     SimpleDateFormat s1 = new SimpleDateFormat("yyyy.MM.dd");
 	String today1 = s1.format(new Date());
+	
 	
 	//get file path
 	File sdCard1 = Environment.getExternalStorageDirectory();
@@ -29,11 +34,10 @@ public class RawDebug {
 	FileWriter fileWritter1 ;
     SimpleDateFormat sss = new SimpleDateFormat("HH,mm,ss");
     
-    Double [] myData;
     
-    int dirFlag;
     
     public RawDebug () throws IOException{
+    	endcount=0;
     	dirFlag=0;
     }
     
@@ -52,27 +56,8 @@ public class RawDebug {
     		System.out.println("Raw data exception!");
     	}
     }
-    /*
-    public RawDebug (Double [] input) throws IOException{
-    	try{
-    		myData=input.clone();
-    		dir1.mkdirs();
-        	file1= new File(dir1,today1+"_Raw_debug.txt");
-        	if(!file1.exists()){
-        		file1.createNewFile();
-        	}
-        	fileWritter1 = new FileWriter(file1 ,true);
-        	//bufferWritter1 = new BufferedWriter(fileWritter1);	
-    	}
-    	catch(IOException e){
-    		e.getStackTrace();
-    		System.out.println("Raw data exception!");
-    	}
-    } 
-    */
     
-    public synchronized void  Debug(Double [] input,ProfileManager mPM){
-    	if( mPM.mProfile.getDebug()==1){
+    public synchronized void  Debug(Double [] input ,int threshod,int end,int debugIndex){
     		Start();
     		myData=input;
     		Date myDay=new Date();
@@ -91,15 +76,15 @@ public class RawDebug {
     		for(int j=0;j<myData.length;j++){
     			datastring=datastring.concat(","+String.valueOf(myData[j]));
     		}
+    		datastring=datastring.concat(","+mPM.mProfile.getName()+","+mPM.mProfile.getSensitivity());
     		try {
-    			bufferWritter1.write(datastring+","+mPM.mProfile.getName()+","+mPM.mProfile.getSensitivity()+"\n");
+    			bufferWritter1.write(datastring+","+String.valueOf(threshod)+","+String.valueOf(end)+","+String.valueOf(debugIndex)+"\n");
     			bufferWritter1.flush();
     			bufferWritter1.close();
     		} catch (IOException e) {
-    			// TODO Auto-generated catch block
+    			// TODO Auto-generated catch block 
     			e.printStackTrace();
     			System.out.println("Raw data write wrong!");
     		}
-    	}
     }
 }

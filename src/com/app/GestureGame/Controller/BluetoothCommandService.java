@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-import com.app.GestureGame.Main.GestureGame;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -15,6 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import com.app.GestureGame.Debug.TimeLogger;
+import com.app.GestureGame.Main.GestureGame;
 
 /*
  *
@@ -56,6 +57,10 @@ public class BluetoothCommandService {
     public static final int VOL_DOWN = 2;
     public static final int MOUSE_MOVE = 3;
     
+    
+    //logger
+    TimeLogger mLogger=new TimeLogger();
+    
     //Calibration flag
     public boolean isCalibrationdone = false ;
 
@@ -71,14 +76,24 @@ public class BluetoothCommandService {
     	//mConnectionLostCount = 0;
     	mHandler = handler;
     }
+    
     /**
      * Set the current state of the chat connection
      * @param state  An integer defining the current connection state
      */
+    
     private synchronized void setState(int state) {
         if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
         mState = state;
+        
+        if(state == STATE_CONNECTED ){
+        	mLogger.Start();
+        }
+        else if (state == STATE_LISTEN || state == STATE_NONE ){
+            	mLogger.End();
+        }
 
+        
         // Give the new state to the Handler so the UI Activity can update
         mHandler.obtainMessage(GestureGame.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
@@ -87,7 +102,6 @@ public class BluetoothCommandService {
         if (D) Log.d(TAG, "setFlag() " + isCalibrationdone + " -> " + in);
         isCalibrationdone = in;
     }
-    
     
     /**
      * Return the current connection state. */
@@ -114,6 +128,7 @@ public class BluetoothCommandService {
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      */
+
     public synchronized void connect(BluetoothDevice device) {
     	if (D) Log.d(TAG, "connect to: " + device);
 
@@ -354,9 +369,11 @@ public class BluetoothCommandService {
                 try {
                 	// Read from the InputStream
                 	int bytes = mmInStream.read(buffer);
-
-                	if (isCalibrationdone)
-                	DataCenter(buffer,bytes);
+                	//System.out.println("Size of bytes is : "+ bytes);
+                	if (isCalibrationdone){
+                		DataCenter(buffer,bytes);
+                		//System.out.println("System data send...");
+                	}
                 	else 
                 		mydataflag=0;
                 
@@ -371,8 +388,12 @@ public class BluetoothCommandService {
         public void DataCenter(byte[] buf,int bytes){
         	
         	try{
+        		
         		int i=0,j,k,countnew;
         		String newstring = new String(buf, 0, bytes);
+        		//System.out.println("Data center is working..." );
+        		//System.out.println(newstring );
+        		
         		
         		//combine the old string so we won't lose data.
         		try{
@@ -416,7 +437,7 @@ public class BluetoothCommandService {
            				 e.getStackTrace();
            			 }
            			 k=j+1;
-
+           			 
            		 }
                 }
                 // save the old remained string so ,we won't lose it when we use it.
@@ -434,10 +455,12 @@ public class BluetoothCommandService {
  * */
         public void SendBack(String  msg){
         	
+    		//System.out.println("msg will be send back" );
         	int returnflag=0;
         	//data processing
         	returnflag=myMsgCtrl.Read(msg);
         	//send back the tag(data).
+        	//System.out.println("msg flag has been send back"+ returnflag );
         	if (returnflag != 0)
          	mHandler.obtainMessage(GestureGame.MESSAGE_READ,returnflag,0,0)
     	 	.sendToTarget();

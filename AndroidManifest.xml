@@ -83,7 +83,13 @@
         
         <activity android:name=".GameGui.GameGui"></activity>
         
-        
+        <activity android:name=".ThreeD.OpenGLDemoActivity"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.OPENGLDEMOACTIVITY" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>

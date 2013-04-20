@@ -26,5 +26,7 @@
     <string name="pass_">Initialize</string>
     <string name="game">Play Game</string>
     <string name="gamereset">Reset</string>
+    <string name="splash_loading">Loading...</string>
+    <string name="Three_d">3D</string>
     
 </resources>

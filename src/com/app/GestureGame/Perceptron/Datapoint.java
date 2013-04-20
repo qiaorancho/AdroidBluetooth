@@ -37,7 +37,14 @@ public class Datapoint
             return x * 180.0 / Math.PI;
         }
 
-
+        public float [] Acc()
+        {		float [] acc =new float[3];
+        		acc[0]=(float)_accx;
+        		acc[1]=(float)_accy;
+        		acc[2]=(float)_accz;
+                return acc;
+        }
+        
         public double AccX()
         {
                 return _accx;
@@ -50,6 +57,16 @@ public class Datapoint
         {
                 return _accz;
         }
+        
+        public float [] Gyr()
+        {		float [] gyr =new float[3];
+        		gyr[0]=(float)_gyrx;
+        		gyr[1]=(float)_gyry;
+        		gyr[2]=(float)_gyrz;
+                return gyr;
+        }
+        
+        
         public double GyrX()
         {
                 return _gyrx;
@@ -62,6 +79,15 @@ public class Datapoint
         {
                 return _gyrz;
         }
+
+        public float [] Mag()
+        {		float [] mag =new float[3];
+        		mag[0]=(float)_magx;
+        		mag[1]=(float)_magy;
+        		mag[2]=(float)_magz;
+                return mag;
+        }
+        
         public double MagX()
         {
                 return _magx;

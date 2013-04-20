@@ -68,16 +68,17 @@ public class Profile implements Serializable {
 	
 	public void InitializeSentence(){
 		String [] array = new String[] {
-				"Hi", "Good Morning", "Good Afternoon", "Good Evening", "Good Night",
+				"Hi", "Hello from IIT", "Good Morning", "Good Afternoon", "Good Evening", "Good Night",
 				"Bye", "Its nice to meet you", "I am glad you are here",
 				"I hope you are doing great", "I am doing great",
 				"I hope you are having a great time here", "Fine , Thank you",
 				"Thanks a lot for coming", "I was looking forward to meeting you",
 				"Please have a seat", "Please make yourself comfortable",
-				"I hope the travel was not too tiring" };
+				"I hope the travel was not too tiring","எனக்கு உதவி தேவை","எனக்கு உடல்நிலை சரியில்லை",
+				"நீங்கள் என் பெற்றோர் அழைக்க முடியும்?","நான் ஒரு மருத்துவரை பார்க்க வேண்டும்.","நன்றி"};
 		mSentence=new ArrayList<String>(Arrays.asList(array));
 	}
-	
+
 	//getter and setter
 	public String  getName(){
 		return mName;

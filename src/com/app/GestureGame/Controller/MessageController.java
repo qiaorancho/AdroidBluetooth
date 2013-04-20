@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TimerTask;
 
-import com.app.GestureGame.Debug.Debugger;
+import com.app.GestureGame.Debug.BasisDebugger;
+import com.app.GestureGame.Debug.FreLogger;
 import com.app.GestureGame.Debug.RawDebug;
+import com.app.GestureGame.Debug.TrainingDebugger;
 import com.app.GestureGame.Filter.LowpassFilter;
 import com.app.GestureGame.Perceptron.Datapoint;
 import com.app.GestureGame.Perceptron.FeatureDescriptor;
@@ -19,8 +21,7 @@ import com.app.GestureGame.Profile.ProfileManager;
  * */
 public  class MessageController 
 {
-     
-	public static  MessageController mcontroller = null; 
+	 public static  MessageController mcontroller = null; 
 	 static boolean _continue;
 	 //Define flag message 
      private static final int NoMovement = 0;
@@ -33,6 +34,9 @@ public  class MessageController
      
      //sensitivity
      public static  int mIndex=3;
+     
+     //counter
+     public static int updatcounter=0;
 
      //variables for gyroscope data
      static Queue<Double> _gyrx_bias_queue;
@@ -57,7 +61,7 @@ public  class MessageController
 
      //variables for gestures
      static LinkedList<Double[]> _rawgesturedata;
-     static LinkedList<Double[]> _clonerawgesturedata;
+     public static LinkedList<Double[]> _clonerawgesturedata;
      static boolean _hasgesturestarted;
      
      static double _gesture_threshold_gyro[] =new double []{8,4,2,1,0.5};
@@ -74,7 +78,21 @@ public  class MessageController
      // perceptron matrix parameter.
      public static int NClASSES=11;
      public static int NDIMENSIONS=34;
+     
+     //index for traning and game;
+     public static int mDebugIndex=0;
+     
+     
+     //data matrix
+     public static Datapoint public_data=null; 
+     public static boolean ShouldWork=true;
 
+     
+     
+     //freLogger
+     public static FreLogger mFreLogger= new FreLogger();
+     
+     
     public static MessageController getinstant(){
     	if(mcontroller== null){
     		doSync ();
@@ -113,12 +131,10 @@ public  class MessageController
 				e.printStackTrace();
 				 System.out.println("Raw initialization");
 			}
-	
 	}
 	public   void setIndex(int in){
     	mIndex=in;
     }
-	
 
 	public synchronized   void setCalibration(boolean in){
 		isCalibrationdone =in;
@@ -127,7 +143,6 @@ public  class MessageController
 	public  int getmylabel(){
     	return mylabel;
     }
-	
 	
 	/**
 	 * The most important function. get datapoint  calibration movement judgment send msg back to control panel.
@@ -140,9 +155,19 @@ public  class MessageController
             {
             	//Get datapoint.
                 Datapoint datapoint = new Datapoint(msg);
+                public_data=datapoint;
+                
+                if(!ShouldWork)
+                {
+                	//send back some junk data.
+                	return -1;
+                }
                 
                 //raw data debugger.
-                mRawDebugger.Debug(datapoint.myDebug, ProfileManager.getinstant());  
+                //mRawDebugger.Debug(datapoint.myDebug, ProfileManager.getinstant());  
+
+                //freLogger
+                mFreLogger.Add();
                 
                 // If it haven't do calibration then do it . 
                 if (isCalibrationdone == false)
@@ -167,6 +192,19 @@ public  class MessageController
                         System.out.println("Bias Values:");
                         System.out.println(_gyrx_bias + "+\\-" + _gyrx_std + "," + _gyry_bias + "+\\-" + _gyry_std + "," + _gyrz_bias + "+\\-" + _gyrz_std);
                         System.out.println("Bias Values:"+ _acc_bias);
+                        
+                        //debug bias
+                        Double[] bias=new Double[7];
+                        bias[0]=_gyrx_bias;
+                        bias[1]=_gyrx_std;
+                        bias[2]=_gyry_bias;
+                        bias[3]=_gyry_std;
+                        bias[4]=_gyrz_bias;
+                        bias[5]=_gyrz_std;
+                        bias[6]=_acc_bias;
+                        BasisDebugger bd=new BasisDebugger(bias);
+                        Thread t = new Thread(bd);
+                        t.start();
                     }
                 }
                 else
@@ -192,17 +230,22 @@ public  class MessageController
                         gesturepoint[3] = datapoint.GyrX() - _gyrx_bias;
                         gesturepoint[4] = datapoint.GyrY() - _gyry_bias;
                         gesturepoint[5] = datapoint.GyrZ() - _gyrz_bias;
-                        
-                         
                         _rawgesturedata.add(gesturepoint);
+                        
+                        //debug data
+                        if (ProfileManager.getinstant().getprofile().getDebug() ==1)
+                        mRawDebugger.Debug(datapoint.myDebug, 1, 0,mDebugIndex);
                     }
-                    
                     else
                     {
                         if (_rawgesturedata.size()> datasetno[mIndex-1])     //has to be at least 10 seconds
                         {
+                        	//movement detected, so we record
+                        	if (ProfileManager.getinstant().getprofile().getDebug() ==1)
+                        	mRawDebugger.Debug(datapoint.myDebug, 0, 1,mDebugIndex);
                         	System.out.println("totall data"+_rawgesturedata.size());
-                        	 
+                        	
+                        	
                         	FeatureDescriptor fd1 = new FeatureDescriptor(_rawgesturedata);
                             double[] featurevector = fd1.getFeaturevector();
                             double [] mSize=fd1.getTime();
@@ -216,11 +259,13 @@ public  class MessageController
                         	mylabel=label;
                         	
                         	backflag=label+1;
-                        	
                         	//use for debug
                         	_clonerawgesturedata.clear();
                         	_clonerawgesturedata=(LinkedList<Double[]>) _rawgesturedata.clone();
-                        
+                        }
+                        else{
+                        	if (ProfileManager.getinstant().getprofile().getDebug() ==1)
+                        	mRawDebugger.Debug(datapoint.myDebug, 0, 0,mDebugIndex);
                         }
                         //clear the data array after stop.
                         _rawgesturedata.clear();
@@ -294,18 +339,22 @@ public  class MessageController
     // Update the Perceptron Weight Matrix.
     public void Update(int label)
     {
-    	//recordData();
     	mylabel = label-1;
+    	//if debug is on.
+    	if (ProfileManager.getinstant().getprofile().getDebug() ==1)
+    	recordData(mylabel);
+
+    	updatcounter++;
         if(_Classification_done==true)
         p1.UpdatePerceptron(_GlobalFeatureVector, mylabel,_GlobalFeatureVectorTime);
         _Classification_done = false;
     }
     
     //send data to debugwriter.() for movemnet debug...but now we don't use it.
-    public static  void recordData(){
+    public static  void recordData(int label){
     	@SuppressWarnings("unchecked")
 		LinkedList<Double[]>  mDebugdata= (LinkedList<Double[]>) _clonerawgesturedata.clone();
-    	Debugger mDebbugger = new Debugger(mDebugdata);
+		TrainingDebugger mDebbugger = new TrainingDebugger(mDebugdata,label, updatcounter);
         Thread t = new Thread(mDebbugger);
         t.start();
     }

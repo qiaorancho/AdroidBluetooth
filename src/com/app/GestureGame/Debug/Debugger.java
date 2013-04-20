@@ -38,6 +38,7 @@ public class Debugger implements Runnable {
 		    			if(!file.exists()){
 		        			file.createNewFile();
 		        		}
+		    			
 		    			//true means we can append.
 		    			FileWriter fileWritter = new FileWriter(file ,true);
 		    	        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
@@ -54,11 +55,13 @@ public class Debugger implements Runnable {
 		    				}
 		    				bufferWritter.write(datastring+"\n");
 		    			}
+		    	        
 		    	        bufferWritter.flush();
 		    	        bufferWritter.close();
-		    	      	
 		                System.out.println("Saved the file");
+		    		
 		    		} catch (IOException e) {
+		    		
 		    		// TODO Auto-generated catch block
 		    		e.printStackTrace();
 		    		System.out.println("Saved the file failed");

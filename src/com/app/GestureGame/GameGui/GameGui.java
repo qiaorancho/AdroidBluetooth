@@ -20,12 +20,14 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.GestureGame.R;
+import com.app.GestureGame.Profile.ProfileManager;
 import com.app.GestureGame.R.color;
+import com.app.GestureGame.Controller.MessageController;
+import com.app.GestureGame.Debug.GameDataDebugger;
 
 public class GameGui extends Activity implements
 AdapterView.OnItemClickListener{
@@ -48,6 +50,10 @@ AdapterView.OnItemClickListener{
 	
 	//set up counter
 	private int counter=0;
+	private int debugcounter=0;
+	
+	//sync with MC data
+	private MessageController mMsgclr= MessageController.getinstant();
 	
 	//my number 
 	private Integer[] mynumbers = new Integer[] { 
@@ -66,6 +72,7 @@ AdapterView.OnItemClickListener{
 	        
 	        //is in front
 	        Isinfront=true;
+	        mMsgclr.mDebugIndex=1;
 	        
 	        //register
 	        IntentFilter ifilt = new IntentFilter("com.app.GestureGame.rawlabel");
@@ -128,8 +135,8 @@ AdapterView.OnItemClickListener{
 				            }
 				            else{
 				            	tv.setBackgroundResource(color.LightGrey);
-				            	tv.setTextColor(color.Black);
-				            } 
+				            	tv.setTextColor(color.DimGray);
+				            }
 				            tv.setText(String.valueOf(mynumbers[position]));
 				            return grid;
 				        }
@@ -187,29 +194,35 @@ AdapterView.OnItemClickListener{
     	 super.onStart();
 		//not in front
 	        Isinfront=true;
+	        //set debug index to game mode.
+	        mMsgclr.mDebugIndex=1;
 	 }
      
 	 private void OnPause(){
 		 super.onPause();
 		//not in front
 	        Isinfront=false;
+	        mMsgclr.mDebugIndex=0;
 	 }
 	 
 	 private void OnResume(){
 		 super.onResume();
 		//is in front
 	        Isinfront=true;
+	        mMsgclr.mDebugIndex=1;
 	 }
 	 
 	 protected void onStop()
 	 {
 	     unregisterReceiver(mReceiver);
 	     Isinfront=false;
+	     mMsgclr.mDebugIndex=0;
 	     super.onStop();
 	 }
 
 	 
 	 private void OnDestroy(){
+		 mMsgclr.mDebugIndex=0;
 		 super.onDestroy();
 	 }
 	 
@@ -219,6 +232,7 @@ AdapterView.OnItemClickListener{
 	        String action = intent.getAction();
 	        String value1="";
 	        int input=0;
+	        int ignoreflag=0;
 	        
 	        if (Isinfront){
 	        	if (action.equals("com.app.GestureGame.rawlabel")) {
@@ -226,9 +240,22 @@ AdapterView.OnItemClickListener{
 		        	    if (null != extras)
 		        	    	 value1 = extras.getString("GameInput");
 		        	    
-		        	    input=Integer.valueOf(value1)-1;
+		        	    input=Integer.valueOf(value1);
+		        	    if(input >10){
+		        	    	input-=10;
+		        	    	ignoreflag=1;
+		        	    }
+		        	    input-=1;
+		        	    
 		        	    int on=GetButtonOn();
 		        	    if (on>=0){
+		        	    	//debug stuff
+		        	    	if (ProfileManager.getinstant().getprofile().getDebug() ==1){
+		        	    		GameDataDebugger mDebugger = new GameDataDebugger(mMsgclr._clonerawgesturedata,on,input,ignoreflag,debugcounter);
+		        	    		Thread t = new Thread(mDebugger);
+		        	    		t.start();
+		        	    	}
+		        	        
 		        	    	//show change
 		        	    	if(input>= 0 && input< 4){
 		        	    		mynumbers[on+4*input]++;
@@ -245,10 +272,10 @@ AdapterView.OnItemClickListener{
 		        	    	
 		        	    	//update view
 		        	    	gridView.invalidateViews();
+		        	    	debugcounter++;
 		        	    }
 		        }
 	        }
 	    }
 	 };
-	  
 }

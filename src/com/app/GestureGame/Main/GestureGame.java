@@ -42,18 +42,13 @@ public class GestureGame extends Activity {
 	// member for test movement training.
 	private ProfileManager mPM = ProfileManager.getinstant();
 	private MessageController mMsgclr= MessageController.getinstant();
-	private UserOperationLog mUol=new UserOperationLog(); 
+	//private UserOperationLog mUol=new UserOperationLog(); 
 	private static TextToSpeech talker;
 	private  String[] mString ;
 	int updateflag=2;
 	public int mMsggotNo=0;
 	Toast mToast;
 	
-	//testing list view
-	/* String[] myvalues = new String[] { "Gesture1", "Gesture2", "Gesture3",
-			"Gesture4", "Gesture5", "Gesture6",
-			"Gesture7", "Gesture8", "Gesture9","Gesture10"};
-   */
 	
 	// Layout view
 	private TextView mTitle;
@@ -138,7 +133,7 @@ public class GestureGame extends Activity {
 					int backlabel=mMsgclr.getmylabel();
             		mMsgclr.Update(MessageController.NClASSES);
             		mIndex.setText("Caliberated");
-            		mUol.Debug(10, backlabel, mPM, mMsgclr);
+            		//mUol.Debug(10, backlabel, mPM, mMsgclr);
 				}
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
@@ -158,7 +153,7 @@ public class GestureGame extends Activity {
             			
                 		mCommandService.setFlag(true);
                 		talker.speak("Initialization.", TextToSpeech.QUEUE_FLUSH, null);
-                		mUol.Debug(-1, -1, mPM, mMsgclr);
+                		//mUol.Debug(-1, -1, mPM, mMsgclr);
             		}
             		else {
                 		updateflag=100;
@@ -206,7 +201,7 @@ public class GestureGame extends Activity {
 					int backlabel=mMsgclr.getmylabel();
             		mMsgclr.Update(arg2+1);
             		mIndex.setText("Caliberated");
-            		mUol.Debug(arg2, backlabel, mPM, mMsgclr);
+            		//mUol.Debug(arg2, backlabel, mPM, mMsgclr);
             	}
 				else{
 					mIndex.setText("Sensitivity: "+mPM.mProfile.getSensitivity());
@@ -322,11 +317,13 @@ public class GestureGame extends Activity {
             case MESSAGE_READ:
                
             	if (Isinfront){
+            		// System.out.println("msg readed from remote device...." + msg.arg1);
             		// here read the message and display.
                 	try{
                 		if(msg.arg1==-1){
                 			mIndex.setText("Initialization finished.");
                 			mPass.setText("   Pass   ");
+                			
                 		}
                 		else{
                 			if(msg.arg1 >10)
@@ -350,8 +347,6 @@ public class GestureGame extends Activity {
             	}
             	// other wise broadcast the message
             	else{
-            		if(msg.arg1 >10)
-        				msg.arg1-=10;
             		Intent intent = new Intent();
             		intent.setAction("com.app.GestureGame.rawlabel");
             		intent.putExtra("GameInput", String.valueOf(msg.arg1));
@@ -453,6 +448,10 @@ public class GestureGame extends Activity {
         case R.id.game: 
         	Intent j = new Intent(GestureGame.this, com.app.GestureGame.GameGui.GameGui.class);
         	 startActivity(j);
+            return true;
+        case R.id.tree_d: 
+        	Intent k = new Intent(GestureGame.this, com.app.GestureGame.ThreeD.OpenGLDemoActivity.class);
+        	 startActivity(k);
             return true;
         }
         return false;

@@ -7,6 +7,6 @@
           android:icon="@android:drawable/ic_menu_mylocation"
           android:title="@string/reset" />
     <item android:id="@+id/game" android:title="@string/game"></item>
-    <item android:id="@+id/invalidone"></item>
+    <item android:id="@+id/tree_d" android:title="@string/Three_d" ></item>
 	
 </menu>

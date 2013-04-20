@@ -175,7 +175,10 @@ public final class R {
         public static final int button3=0x7f070010;
         public static final int button4=0x7f070011;
         public static final int button_scan=0x7f070008;
-        public static final int game=0x7f070022;
+        public static final int d1=0x7f070020;
+        public static final int d2=0x7f070021;
+        public static final int d3=0x7f070022;
+        public static final int game=0x7f070026;
         public static final int gamereset=0x7f07001f;
         public static final int grid_view=0x7f070012;
         public static final int invalidone=0x7f070023;
@@ -189,8 +192,8 @@ public final class R {
         public static final int mTitle1=0x7f07000c;
         public static final int new_devices=0x7f070007;
         public static final int paired_devices=0x7f070005;
-        public static final int reset=0x7f070021;
-        public static final int scan=0x7f070020;
+        public static final int reset=0x7f070025;
+        public static final int scan=0x7f070024;
         public static final int textView1=0x7f070003;
         public static final int title_left_text=0x7f070000;
         public static final int title_new_devices=0x7f070006;
@@ -198,6 +201,7 @@ public final class R {
         public static final int title_right_text=0x7f070001;
         public static final int toggleButton1=0x7f070002;
         public static final int toptext=0x7f07001d;
+        public static final int tree_d=0x7f070027;
         public static final int txtItem=0x7f07001a;
     }
     public static final class layout {
@@ -215,9 +219,11 @@ public final class R {
     }
     public static final class menu {
         public static final int game_option_menu=0x7f060000;
-        public static final int option_menu=0x7f060001;
+        public static final int option_d=0x7f060001;
+        public static final int option_menu=0x7f060002;
     }
     public static final class string {
+        public static final int Three_d=0x7f05001b;
         public static final int app_name=0x7f050001;
         public static final int bt_not_enabled_leaving=0x7f050003;
         public static final int btn_find=0x7f050002;
@@ -237,6 +243,7 @@ public final class R {
         public static final int reset=0x7f05000d;
         public static final int scanning=0x7f050008;
         public static final int select_device=0x7f05000a;
+        public static final int splash_loading=0x7f05001a;
         public static final int title_connected_to=0x7f05000e;
         public static final int title_connecting=0x7f05000f;
         public static final int title_not_connected=0x7f050010;

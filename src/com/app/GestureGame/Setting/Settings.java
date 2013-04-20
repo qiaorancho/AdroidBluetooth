@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.app.GestureGame.R;
 import com.app.GestureGame.Controller.MessageController;
+import com.app.GestureGame.Debug.DebugDeleter;
 import com.app.GestureGame.Profile.ProfileManager;
 
 public class Settings extends ListActivity {
@@ -30,7 +31,7 @@ public class Settings extends ListActivity {
     private ProfileManager mPM=ProfileManager.getinstant();
     private MessageController mMsgclr= MessageController.getinstant();
     private static final   int  ForSen=2;
-    private static final   int   ForPro=1;
+    private static final   int   ForPro=1; 
     private static final   int   ForLoad=3;
     ListView list ;
 	@Override
@@ -75,12 +76,19 @@ public class Settings extends ListActivity {
 					mPM.reSet(mPM.mContext, mPM.mProfile.getName());
 					mMsgclr.p1._WeightMatrix=mPM.mProfile.getWeight();
 					mMsgclr.p1._PerceptronPoints=mPM.mProfile.getPerceptropoints();
+					
+					//reset debug setting
+					mMsgclr.mDebugIndex=0;
+					mMsgclr.updatcounter=0;
 					//reset initialization part.
 					Bundle extras1 = new Bundle();
     				Intent i = new Intent();
     				extras1.putString("text", text_final);
     				i.putExtras(extras1);
     				setResult(RESULT_OK, i);
+    				
+    				DebugDeleter dd=new DebugDeleter ();
+    				dd.delet();
     				
     				Toast.makeText(mPM.mContext,
 							"Reset", Toast.LENGTH_SHORT).show();
