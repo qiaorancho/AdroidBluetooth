@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/d1"
+          android:icon="@android:drawable/ic_menu_search"
+          android:title="1" />
+    <item android:id="@+id/d2"
+          android:icon="@android:drawable/ic_menu_mylocation"
+          android:title="2" />
+    <item android:id="@+id/d3" android:title="3"></item>
+    <item android:id="@+id/invalidone"></item>
+	
+</menu>
